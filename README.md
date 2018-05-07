@@ -1,0 +1,1 @@
+Stargate training for laterals
