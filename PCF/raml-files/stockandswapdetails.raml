@@ -1,0 +1,55 @@
+#%RAML 1.0
+baseUri: https://mocksvc.mulesoft.com/mocks/898208da-e512-4a34-bdb5-007741756e2e # 
+title: Get Stock and Swap Details
+version: v1.0
+mediaType: application/json 
+securitySchemes: 
+  basicAuth: 
+    description: Each request must contain the headers necessary for 
+                 basic authentication 
+    type: Basic Authentication 
+    describedBy: 
+      headers: 
+        Authorization: 
+          description: Used to send the Base64-encoded "username:password"credentials 
+          type: string 
+      responses: 
+        401: 
+          description: | 
+            Unauthorized. Either the provided username and password 
+            combination is invalid, or the user is not allowed to access 
+            the content provided by the requested URL.
+
+/stockandswapDetails/{holdingId}:
+  uriParameters: 
+    holdingId: 
+      displayName: Holding Id for required stock or swap details
+      type: string
+      required: true
+  
+  get:
+   queryParameters: 
+     securityType:
+      description: Based on Scurity Type selected result data hown in response.
+      type: string
+      enum: ["Stock","Swap"]
+      required: true
+    
+   responses: 
+    200:
+      body: 
+        application/json:
+         example: !include ssresponse.json
+          
+    
+    404:
+      body: 
+        application/json:
+          example: |
+           {
+             "message": "Not Found"
+             }  
+      
+    
+   
+   
