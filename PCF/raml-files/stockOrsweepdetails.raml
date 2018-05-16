@@ -1,6 +1,6 @@
 #%RAML 1.0
 baseUri: https://mocksvc.mulesoft.com/mocks/898208da-e512-4a34-bdb5-007741756e2e # 
-title: Get Stock and Sweep Details
+title: Get Stock Or Sweep Details
 version: v1.0
 mediaType: application/json 
 securitySchemes: 
@@ -20,7 +20,7 @@ securitySchemes:
             combination is invalid, or the user is not allowed to access 
             the content provided by the requested URL.
 
-/stockandswapDetails/{holdingId}:
+/stockorswapDetails/{holdingId}:
   uriParameters: 
     holdingId: 
       displayName: Holding Id for required stock or swap details
