@@ -4,24 +4,23 @@ version: v1
 baseUri: https://mocksvc.mulesoft.com/mocks/610ab040-c41d-406d-99be-a0ba868b0ea8/api/{version} # baseUri: https://mocksvc.mulesoft.com/mocks/0ebb61ea-3f4a-41e2-8296-678c335e1a3b/api/{version} # baseUri: https://mocksvc.mulesoft.com/mocks/0ebb61ea-3f4a-41e2-8296-678c335e1a3b/api/{version} 
 mediaType: application/json
 
-securitySchemes: 
-  securitySchemes:
-    type: OAuth 2.0
-    description: |
-      Dropbox supports OAuth 2.0 for authenticating all API requests.    
+securitySchemes:
+  basicAuth:
+    description: Each request must contain the headers necessary for
+                 basic authentication
+    type: Basic Authentication
     describedBy:
-      queryParameters:
-        headers:              
-        access_token:
-          description: |
-             Used to send a valid OAuth 2 access token. Do not use with the "Authorization" header.
+      headers:
+        Authorization:
+          description: Used to send the Base64-encoded "username:password"
+                       credentials
           type: string
       responses:
         401:
           description: |
-              Bad or expired token. This can happen if the user or Dropbox
-              revoked or expired an access token. To fix, re-authenticate
-              the user.
+            Unauthorized. Either the provided username and password
+            combination is invalid, or the user is not allowed to access
+            the content provided by the requested URL.
 
 types:
   #Customer:
@@ -35,19 +34,21 @@ types:
 /customer:
 /update-address:
   put:
-    description: Change the Delivery address of the customer.   
+    description: Change the Delivery address of the customer. 
     body:      
     #queryParameters:
       application/json:      
-       properties:      
+        properties:      
           id: 
             description: "The customer Id of which address need to be modified"    
             required: true
             type: integer
-            minimum: 1
+            minimum: 2
+            format: int8
+            multipleOf: 1            
 
           addressType:            
-            description: "Taking one of the address type to meae it as delivey address"
+            description: "Taking one of the address type to marking it as delivey address"
             type: string
             enum: ["Home","Business","Mailing"]
             required: true        
