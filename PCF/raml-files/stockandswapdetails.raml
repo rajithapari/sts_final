@@ -1,6 +1,6 @@
 #%RAML 1.0
 baseUri: https://mocksvc.mulesoft.com/mocks/898208da-e512-4a34-bdb5-007741756e2e # 
-title: Get Stock and Swap Details
+title: Get Stock and Sweep Details
 version: v1.0
 mediaType: application/json 
 securitySchemes: 
@@ -32,7 +32,7 @@ securitySchemes:
      securityType:
       description: Based on Scurity Type selected result data hown in response.
       type: string
-      enum: ["Stock","Swap"]
+      enum: ["Stock","Sweep"]
       required: true
     
    responses: 
