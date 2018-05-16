@@ -1,0 +1,31 @@
+#%RAML 1.0
+title: Employee
+baseUri: https://mocksvc.mulesoft.com/mocks/3b518167-06b5-4823-a94a-de1d39ed9a4d/api # baseUri: https://mocksvc.mulesoft.com/mocks/ff0b4bc6-8a4a-4eed-b256-9d99e35f519e/api
+version: v1
+mediaType: application/json
+
+/Security:
+  /{id}:
+    uriParameters:
+      id:
+        description: Specify the id of the user you want to retrieve
+        type: integer
+        required:    true
+    get:
+
+     responses:
+        200:
+         body: 
+           application/json:
+             example:
+              { "EmployeePreTaxAmount": 1, "EmployeeAfterTaxAmount":2, "EmployeeAfterTaxPercentage": 3}
+       
+           
+        404:
+          body: 
+            application/json:
+              example:
+               {"Todo with provided id not found" }
+              
+               
+                
