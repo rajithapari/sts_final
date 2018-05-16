@@ -1,0 +1,4753 @@
+#%RAML 1.0
+title: OpenID Financial API
+version: 1.0.0
+baseUri: http://example.com/api
+baseUriParameters: {}
+types:
+  Account:
+    displayName: Account
+    description: An abstract account entity that concrete account entities extend. Extends and inherits all fields from [AccountDescriptor]('#/definitions/AccountDescriptor').
+    type: AccountDescriptor
+    properties:
+      Currency:
+        required: true
+        displayName: Currency
+        description: Currency Aggregate
+        type: Currency
+      AccountNumber:
+        required: true
+        displayName: AccountNumber
+        description: End user's handle for account at owning institution
+        type: string
+      InterestRate:
+        required: true
+        displayName: InterestRate
+        description: Interest Rate of Account
+        type: number
+        format: double
+      AccountObjectType:
+        required: false
+        displayName: AccountObjectType
+        description: for Polymorphism
+        type: string
+      ParentAccountId:
+        required: false
+        displayName: ParentAccountId
+        description: Long-term persistent identity of the parent account. This is used to group accounts.
+        type: string
+        maxLength: 128
+      Nickname:
+        required: false
+        displayName: Nickname
+        description: The user's moniker for the account
+        type: string
+      LineOfBusiness:
+        required: false
+        displayName: LineOfBusiness
+        description: The line of business, such as consumer, consumer joint, small business, corporate, etc.
+        type: string
+      RoutingTransitNumber:
+        required: false
+        displayName: RoutingTransitNumber
+        description: RTN associated with account number at owning institution.
+        type: string
+      BalanceType:
+        required: false
+        displayName: BalanceType
+        description: ASSET (positive transaction amount increases balance), LIABILITY (positive transaction amount decreases balance)
+        type: string
+        enum:
+        - ASSET
+        - LIABILITY
+      InterestRateType:
+        required: false
+        displayName: InterestRateType
+        description: FIXED or VARIABLE
+        type: string
+        enum:
+        - FIXED
+        - VARIABLE
+      InterestRateAsOf:
+        required: false
+        displayName: InterestRateAsOf
+        description: Date of account's interest rate
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      PriorInterestRate:
+        required: false
+        displayName: PriorInterestRate
+        description: Previous Interest Rate of Account
+        type: number
+        format: double
+      TransferIn:
+        required: false
+        displayName: TransferIn
+        description: Account is eligible for incoming transfers
+        type: boolean
+      TransferOut:
+        required: false
+        displayName: TransferOut
+        description: Account is eligible for outgoing transfers
+        type: boolean
+      MicrNumber:
+        required: false
+        displayName: MicrNumber
+        description: MICR Number
+        type: string
+        maxLength: 64
+      LastActivityDate:
+        required: false
+        displayName: LastActivityDate
+        description: Date that last transaction occurred on account
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      TransactionsIncluded:
+        required: false
+        displayName: TransactionsIncluded
+        description: Default is false. If present and true, a call to retrieve transactions will not return any further details about this account. This is an optimization that allows a Durable Data API server to return transactions and account details in a single call.
+        type: boolean
+  AccountDescriptor:
+    displayName: AccountDescriptor
+    description: Minimal information about the account for use in lightweight arrays.
+    type: object
+    properties:
+      AccountId:
+        required: true
+        displayName: AccountId
+        description: Long-term persistent identity of the account. Not an account number. This identity must be unique to the owning institution.
+        type: string
+        maxLength: 128
+      DisplayName:
+        required: true
+        displayName: DisplayName
+        description: Account identity to display to customer. This may be a masked account number or product name followed by masked number.
+        type: string
+      Status:
+        required: true
+        displayName: Status
+        description: Account status
+        type: string
+        enum:
+        - CLOSED
+        - DELINQUENT
+        - NEGATIVECURRENTBALANCE
+        - OPEN
+        - PAID
+        - PENDINGCLOSE
+        - PENDINGOPEN
+      AccountDescriptorObjectType:
+        required: false
+        displayName: AccountDescriptorObjectType
+        description: for Polymorphism
+        type: string
+      AccountType:
+        required: false
+        displayName: AccountType
+        description: Account type
+        type: string
+        enum:
+        - 401A
+        - 401K
+        - 403B
+        - "'529'"
+        - CD
+        - CHARGE
+        - CHECKING
+        - COMMERCIALLINEOFCREDIT
+        - COMMERCIALLOAN
+        - COVERDELL
+        - CREDITCARD
+        - ESCROW
+        - ESOP
+        - GUARDIAN
+        - HOMEEQUITYLOAN
+        - HOMELINEOFCREDIT
+        - INSITUTIONALTRUST
+        - INSTALLMENT
+        - IRA
+        - KEOGH
+        - LINEOFCREDIT
+        - LOAN
+        - MILATARYLOAN
+        - MONEYMARKET
+        - MORTGAGE
+        - PERSONALLOAN
+        - ROLLOVER
+        - ROTH
+        - SARSEP
+        - SAVINGS
+        - SMBLOAN
+        - STUDENTLOAN
+        - TAXABLE
+        - TDA
+        - TRUST
+        - UGMA
+        - UTMA
+      Description:
+        required: false
+        displayName: Description
+        description: Description of account
+        type: string
+      Error:
+        required: false
+        displayName: Error
+        description: Present if an error was encountered while retrieving this account
+        type: Error
+      FiAttributes:
+        required: false
+        displayName: FiAttributes
+        description: Array of FI-specific attributes
+        type: array
+        items:
+          type: FiAttribute
+  Error:
+    displayName: Error
+    description: An error entity which can be used at the API level for error responses or at the account level to indicate a problem specific to a particular account.
+    type: object
+    properties:
+      Code:
+        required: true
+        displayName: Code
+        description: Long term persistent identifier which can be used to trace error condition back to log information
+        type: string
+      Message:
+        required: false
+        displayName: Message
+        description: End user displayable information which might help the customer diagnose an error
+        type: string
+  FiAttribute:
+    displayName: FiAttribute
+    description: FI-specific attribute.
+    type: object
+    properties:
+      Name:
+        required: true
+        displayName: Name
+        type: string
+      Value:
+        required: true
+        displayName: Value
+        type: string
+  Currency:
+    displayName: Currency
+    type: object
+    properties:
+      CurrencyRate:
+        required: false
+        displayName: CurrencyRate
+        description: Currency rate between original and converted currency
+        type: number
+        format: double
+      CurrencyCode:
+        required: false
+        displayName: CurrencyCode
+        description: ISO 4217 currency code
+        type: string
+        enum:
+        - AED
+        - AFN
+        - ALL
+        - AMD
+        - ANG
+        - AOA
+        - ARS
+        - AUD
+        - AWG
+        - AZN
+        - BAM
+        - BBD
+        - BDT
+        - BGN
+        - BHD
+        - BIF
+        - BMD
+        - BND
+        - BOB
+        - BOV
+        - BRL
+        - BSD
+        - BTN
+        - BWP
+        - BYR
+        - BZD
+        - CAD
+        - CDF
+        - CHE
+        - CHF
+        - CHW
+        - CLF
+        - CLP
+        - CNY
+        - COP
+        - COU
+        - CRC
+        - CUC
+        - CUP
+        - CVE
+        - CZK
+        - DJF
+        - DKK
+        - DOP
+        - DZD
+        - EGP
+        - ERN
+        - ETB
+        - EUR
+        - FJD
+        - FKP
+        - GBP
+        - GEL
+        - GHS
+        - GIP
+        - GMD
+        - GNF
+        - GTQ
+        - GYD
+        - HKD
+        - HNL
+        - HRK
+        - HTG
+        - HUF
+        - IDR
+        - ILS
+        - INR
+        - IQD
+        - IRR
+        - ISK
+        - JMD
+        - JOD
+        - JPY
+        - KES
+        - KGS
+        - KHR
+        - KMF
+        - KPW
+        - KRW
+        - KWD
+        - KYD
+        - KZT
+        - LAK
+        - LBP
+        - LKR
+        - LRD
+        - LSL
+        - LYD
+        - MAD
+        - MDL
+        - MGA
+        - MKD
+        - MMK
+        - MNT
+        - MOP
+        - MRO
+        - MUR
+        - MVR
+        - MWK
+        - MXN
+        - MXV
+        - MYR
+        - MZN
+        - NAD
+        - NGN
+        - NIO
+        - NOK
+        - NPR
+        - NZD
+        - OMR
+        - PAB
+        - PEN
+        - PGK
+        - PHP
+        - PKR
+        - PLN
+        - PYG
+        - QAR
+        - RON
+        - RSD
+        - RUB
+        - RWF
+        - SAR
+        - SBD
+        - SCR
+        - SDG
+        - SEK
+        - SGD
+        - SHP
+        - SLL
+        - SOS
+        - SRD
+        - SSP
+        - STD
+        - SVC
+        - SYP
+        - SZL
+        - THB
+        - TJS
+        - TMT
+        - TND
+        - TOP
+        - TRY
+        - TTD
+        - TWD
+        - TZS
+        - UAH
+        - UGX
+        - USD
+        - USN
+        - UYI
+        - UYU
+        - UZS
+        - VEF
+        - VND
+        - VUV
+        - WST
+        - XAF
+        - XAG
+        - XAU
+        - XBA
+        - XBB
+        - XBC
+        - XBD
+        - XCD
+        - XDR
+        - XOF
+        - XPD
+        - XPF
+        - XPT
+        - XSU
+        - XTS
+        - XUA
+        - XXX
+        - YER
+        - ZAR
+        - ZMW
+        - ZWL
+      OriginalCurrencyCode:
+        required: false
+        displayName: OriginalCurrencyCode
+        type: string
+        enum:
+        - AED
+        - AFN
+        - ALL
+        - AMD
+        - ANG
+        - AOA
+        - ARS
+        - AUD
+        - AWG
+        - AZN
+        - BAM
+        - BBD
+        - BDT
+        - BGN
+        - BHD
+        - BIF
+        - BMD
+        - BND
+        - BOB
+        - BOV
+        - BRL
+        - BSD
+        - BTN
+        - BWP
+        - BYR
+        - BZD
+        - CAD
+        - CDF
+        - CHE
+        - CHF
+        - CHW
+        - CLF
+        - CLP
+        - CNY
+        - COP
+        - COU
+        - CRC
+        - CUC
+        - CUP
+        - CVE
+        - CZK
+        - DJF
+        - DKK
+        - DOP
+        - DZD
+        - EGP
+        - ERN
+        - ETB
+        - EUR
+        - FJD
+        - FKP
+        - GBP
+        - GEL
+        - GHS
+        - GIP
+        - GMD
+        - GNF
+        - GTQ
+        - GYD
+        - HKD
+        - HNL
+        - HRK
+        - HTG
+        - HUF
+        - IDR
+        - ILS
+        - INR
+        - IQD
+        - IRR
+        - ISK
+        - JMD
+        - JOD
+        - JPY
+        - KES
+        - KGS
+        - KHR
+        - KMF
+        - KPW
+        - KRW
+        - KWD
+        - KYD
+        - KZT
+        - LAK
+        - LBP
+        - LKR
+        - LRD
+        - LSL
+        - LYD
+        - MAD
+        - MDL
+        - MGA
+        - MKD
+        - MMK
+        - MNT
+        - MOP
+        - MRO
+        - MUR
+        - MVR
+        - MWK
+        - MXN
+        - MXV
+        - MYR
+        - MZN
+        - NAD
+        - NGN
+        - NIO
+        - NOK
+        - NPR
+        - NZD
+        - OMR
+        - PAB
+        - PEN
+        - PGK
+        - PHP
+        - PKR
+        - PLN
+        - PYG
+        - QAR
+        - RON
+        - RSD
+        - RUB
+        - RWF
+        - SAR
+        - SBD
+        - SCR
+        - SDG
+        - SEK
+        - SGD
+        - SHP
+        - SLL
+        - SOS
+        - SRD
+        - SSP
+        - STD
+        - SVC
+        - SYP
+        - SZL
+        - THB
+        - TJS
+        - TMT
+        - TND
+        - TOP
+        - TRY
+        - TTD
+        - TWD
+        - TZS
+        - UAH
+        - UGX
+        - USD
+        - USN
+        - UYI
+        - UYU
+        - UZS
+        - VEF
+        - VND
+        - VUV
+        - WST
+        - XAF
+        - XAG
+        - XAU
+        - XBA
+        - XBB
+        - XBC
+        - XBD
+        - XCD
+        - XDR
+        - XOF
+        - XPD
+        - XPF
+        - XPT
+        - XSU
+        - XTS
+        - XUA
+        - XXX
+        - YER
+        - ZAR
+        - ZMW
+        - ZWL
+  Accounts:
+    displayName: Accounts
+    description: An optionally paginated array of accounts.
+    type: object
+    properties:
+      Total:
+        required: false
+        displayName: Total
+        description: Total number of results in this collection across all pages
+        type: integer
+        format: int32
+      TotalPages:
+        required: false
+        displayName: TotalPages
+        description: Total number of pages
+        type: integer
+        format: int32
+      Page:
+        required: false
+        displayName: Page
+        description: Current page number
+        type: integer
+        format: int32
+      Accounts:
+        required: false
+        displayName: Accounts
+        description: An array of accounts with entity types dependent on the account type (deposit, investment, loan, or line of credit)
+        type: array
+        items:
+          type: Account
+  AccountsDetailsRequest:
+    displayName: AccountsDetailsRequest
+    type: object
+    properties:
+      SingleAccountDetailsRequestList:
+        required: true
+        displayName: SingleAccountDetailsRequestList
+        description: array of SingleAccountDetailsRequest
+        type: array
+        items:
+          type: SingleAccountDetailsRequest
+  SingleAccountDetailsRequest:
+    displayName: SingleAccountDetailsRequest
+    description: Single Account Details Request
+    type: object
+    properties:
+      AccountId:
+        required: true
+        displayName: AccountId
+        description: Account identifier
+        type: string
+      StartTime:
+        required: false
+        displayName: StartTime
+        description: Start time for use in retrieval; ISO 8601 date including zone indicator or combined date time including zone indicator
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      EndTime:
+        required: false
+        displayName: EndTime
+        description: End time for use in retrieval; ISO 8601 date including zone indicator or combined date time including zone indicator
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      Page:
+        required: false
+        displayName: Page
+        description: Page number (applicable only if the server has indicated that the collection is paginated)
+        type: integer
+        format: int32
+  Address:
+    displayName: Address
+    type: object
+    properties:
+      Line1:
+        required: true
+        displayName: Line1
+        description: The location's first line
+        type: string
+        maxLength: 64
+      City:
+        required: true
+        displayName: City
+        description: The location's city
+        type: string
+        maxLength: 64
+      Subdivision:
+        required: true
+        displayName: Subdivision
+        description: The location's country subdivision
+        type: CountrySubdivision
+      PostalCode:
+        required: true
+        displayName: PostalCode
+        description: The delivery location's postal code
+        type: string
+        maxLength: 9
+      Country:
+        required: true
+        displayName: Country
+        description: Country
+        type: Country
+      Line2:
+        required: false
+        displayName: Line2
+        description: The location's second line
+        type: string
+        maxLength: 64
+      Line3:
+        required: false
+        displayName: Line3
+        description: The location's third line
+        type: string
+        maxLength: 64
+  CountrySubdivision:
+    displayName: CountrySubdivision
+    description: A country state/province/subdivision
+    type: object
+    properties:
+      Name:
+        required: false
+        displayName: Name
+        description: Name of the state or province
+        type: string
+      Code:
+        required: false
+        displayName: Code
+        description: Abbreviated code for the state/province/subdivision
+        type: string
+        minLength: 3
+        maxLength: 3
+  Country:
+    displayName: Country
+    description: Country and it's ISO code
+    type: object
+    properties:
+      Name:
+        required: false
+        displayName: Name
+        description: Name of the Country
+        type: string
+      Code:
+        required: false
+        displayName: Code
+        description: 3 letter ISO 3166-1 Country code
+        type: string
+        minLength: 3
+        maxLength: 3
+      GeoCoding:
+        required: false
+        displayName: GeoCoding
+        description: Indicates whether the country is geocoded
+        type: boolean
+  ATM:
+    displayName: ATM
+    description: An ATM description
+    type: object
+    properties:
+      HandicapAccessible:
+        required: false
+        displayName: HandicapAccessible
+        description: Indicates whether or not the ATM is accessible by wheelchair. Options are UNKNOWN, YES, NO.
+        type: string
+        enum:
+        - YES
+        - NO
+        - UNKNOWN
+      Camera:
+        required: false
+        displayName: Camera
+        description: Indicates whether or not a security camera is present or near ATM. Options are UNKNOWN, YES, NO.
+        type: string
+        enum:
+        - YES
+        - NO
+        - UNKNOWN
+      Availability:
+        required: false
+        displayName: Availability
+        description: Indicates the availability hours of the ATM. Options are UNKNOWN, ALWAYS_AVAILABLE, BUSINESS_HOURS, IRREGULAR_HOURS
+        type: string
+        enum:
+        - ALWAYS_AVAILABLE
+        - BUSINESS_HOURS
+        - IRREGULAR_HOURS
+        - UNKNOWN
+      AccessFees:
+        required: false
+        displayName: AccessFees
+        description: Indicates under what conditions access fees are charged. Options are UNKNOWN, DOMESTIC, INTERNATIONAL, DOMESTIC_AND_INTERNATIONAL, NO_FEE
+        type: string
+        enum:
+        - DOMESTIC
+        - INTERNATIONAL
+        - DOMESTIC_AND_INTERNATIONAL
+        - NO_FEE
+        - UNKNOWN
+      Owner:
+        required: false
+        displayName: Owner
+        description: This is the DBA name of the financial institution affiliate or independent service organization.
+        type: string
+      SharedDeposit:
+        required: false
+        displayName: SharedDeposit
+        description: Indicates whether or not the ATM participates in the MasterCard Shared Deposit network.
+        type: boolean
+      SurchargeFreeAlliance:
+        required: false
+        displayName: SurchargeFreeAlliance
+        description: Indicates whether or not the ATM participates in the MasterCard Shared (only) Surcharge Free Alliance network.
+        type: boolean
+      SurchargeFreeAllianceNetwork:
+        required: false
+        displayName: SurchargeFreeAllianceNetwork
+        description: This value indicates whether or not the ATM participates in the MasterCard Shared (only) Surcharge Free Alliance network. Options are DOES_NOT_PARTICIPATE_IN_SFA, ALLPOINT_PREPAID, MONEYPASS_DEBIT, and ALL_SURCHARGE_FREE.
+        type: string
+        enum:
+        - DOES_NOT_PARTICIPATE_IN_SFA
+        - ALLPOINT_PREPAID
+        - MONEYPASS_DEBIT
+        - ALL_SURCHARGE_FREE
+      SupportEMV:
+        required: false
+        displayName: SupportEMV
+        description: Indicates whether the ATM has the ability to read chip cards or not. Options are 1 = Yes 2 = No or Empty = Unknown
+        type: string
+        enum:
+        - YES
+        - NO
+        - UNKNOWN
+      Location:
+        required: false
+        displayName: Location
+        description: Location of the ATM
+        type: Location
+  Location:
+    displayName: Location
+    description: A location/address description
+    type: object
+    properties:
+      Name:
+        required: false
+        displayName: Name
+        description: Name of the location
+        type: string
+      Address:
+        required: false
+        displayName: Address
+        description: Address of the location
+        type: Address
+      Distance:
+        required: false
+        displayName: Distance
+        description: Distance from a provided location to this location.
+        type: Distance
+      Point:
+        required: false
+        displayName: Point
+        description: Coordinates of the location
+        type: LocationCoordinate
+      LocationType:
+        required: false
+        displayName: LocationType
+        description: Location Type description
+        type: LocationType
+  Distance:
+    displayName: Distance
+    description: Describes a distance
+    type: object
+    properties:
+      Distance:
+        required: false
+        displayName: Distance
+        description: This is the numerical value for the distance from a provided location to the selected location.
+        type: number
+        format: double
+      DistanceUnit:
+        required: false
+        displayName: DistanceUnit
+        description: Unit of measure value for the distance
+        type: string
+        enum:
+        - MILE
+        - KILOMETER
+  LocationCoordinate:
+    displayName: LocationCoordinate
+    description: The latitude and longitude of a location point in the globe using signed degrees format
+    type: object
+    properties:
+      Latitude:
+        required: false
+        displayName: Latitude
+        description: Latitude of the location
+        type: number
+        format: double
+      Longitude:
+        required: false
+        displayName: Longitude
+        description: Longitude of the location
+        type: number
+        format: double
+  LocationType:
+    displayName: LocationType
+    description: Description of a location type
+    type: object
+    properties:
+      Type:
+        required: false
+        displayName: Type
+        description: Type of location. Options are OTHER, AIRPORT, HOSPITAL, FINANCIAL_INSTITUTION
+        type: string
+        enum:
+        - OTHER
+        - AIRPORT
+        - HOSPITAL
+        - FINANCIAL_INSTITUTION
+      AirportCode:
+        required: false
+        displayName: AirportCode
+        description: Airport code is a 3 digit field. This is an optional field and will only be returned if Type=AIRPORT
+        type: string
+  ATMS:
+    displayName: ATMS
+    description: A list of ATMs
+    type: object
+    properties:
+      PageOffset:
+        required: false
+        displayName: PageOffset
+        description: Zero-based offset where the response will start. The actual start position is this value +1. An offset of 10 starts at item 11. Combined with the PageLength option this allows pagination to be supported through the service requests.
+        type: number
+        format: double
+      TotalCount:
+        required: false
+        displayName: TotalCount
+        description: This is the total number of ATMs that match your criteria.
+        type: number
+        format: double
+      ATM:
+        required: false
+        displayName: ATM
+        description: A list of the ATMs
+        type: array
+        items:
+          type: ATM
+  Availability66:
+    displayName: Availability66
+    type: object
+    properties:
+      CurrentStatus:
+        required: true
+        displayName: CurrentStatus
+        type: string
+      CurrentStatusDesc:
+        required: false
+        displayName: CurrentStatusDesc
+        type: string
+      PlannedAvailability:
+        required: false
+        displayName: PlannedAvailability
+        description: An array of PlannedAvailability
+        type: array
+        items:
+          type: PlannedAvailability
+  PlannedAvailability:
+    displayName: PlannedAvailability
+    description: Single Account Details Request
+    type: object
+    properties:
+      Status:
+        required: true
+        displayName: Status
+        type: string
+      StatusShortDesc:
+        required: true
+        displayName: StatusShortDesc
+        type: string
+      StatusStartDate:
+        required: true
+        displayName: StatusStartDate
+        description: Start time; ISO 8601 date including zone indicator or combined date time including zone indicator
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      StatusEndDate:
+        required: true
+        displayName: StatusEndDate
+        description: End time; ISO 8601 date including zone indicator or combined date time including zone indicator
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+  Capability:
+    displayName: Capability
+    description: Describes capabilities of this implementation of Financial API.
+    type: object
+    properties:
+      AllowedConnections:
+        required: false
+        displayName: AllowedConnections
+        description: Number of concurrent connections allowed for this client
+        type: integer
+        format: int32
+      ActiveConnections:
+        required: false
+        displayName: ActiveConnections
+        description: Current number of active connections for this client
+        type: integer
+        format: int32
+      SupportsCustomer:
+        required: false
+        default: false
+        displayName: SupportsCustomer
+        description: Capable of responding to customer queries. Defaults to false.
+        type: boolean
+      SupportsAccounts:
+        required: false
+        default: false
+        displayName: SupportsAccounts
+        description: Capable of responding to accounts and account queries. Defaults to false.
+        type: boolean
+      SupportsTransactions:
+        required: false
+        default: false
+        displayName: SupportsTransactions
+        description: Capable of responding to transaction queries. Defaults to false.
+        type: boolean
+      SupportsStatements:
+        required: false
+        default: false
+        displayName: SupportsStatements
+        description: Capable of responding to statements and statement queries. Defaults to false.
+        type: boolean
+      SupportsImage:
+        required: false
+        default: false
+        displayName: SupportsImage
+        description: Capable of responding to image queries. Defaults to false.
+        type: boolean
+      SupportsBillPay:
+        required: false
+        default: false
+        displayName: SupportsBillPay
+        description: Capable of supporting a bill payment request. Defaults to false.
+        type: boolean
+      SupportsTransfer:
+        required: false
+        default: false
+        displayName: SupportsTransfer
+        description: Capable of supporting a transfer request. Defaults to false.
+        type: boolean
+      TransferCutOffTime:
+        required: false
+        displayName: TransferCutOffTime
+        description: Cut off time for transfers. Required if transfers are supported.
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+  Contribution:
+    displayName: Contribution
+    type: object
+    properties:
+      SecurityId:
+        required: false
+        displayName: SecurityId
+        description: Unique identifier of security
+        type: string
+      SecurityIdType:
+        required: false
+        displayName: SecurityIdType
+        description: Security identifier type
+        type: string
+        enum:
+        - CUSIP
+        - ISIN
+        - SEDOL
+        - SICC
+        - VALOR
+        - WKN
+      EmployerMatchPercentage:
+        required: false
+        displayName: EmployerMatchPercentage
+        description: Employer contribution match percentage
+        type: number
+        format: double
+      EmployerMatchAmount:
+        required: false
+        displayName: EmployerMatchAmount
+        description: Employer contribution match amount
+        type: number
+        format: double
+      EmployeePreTaxAmount:
+        required: false
+        displayName: EmployeePreTaxAmount
+        description: Employee pre-tax contribution amount
+        type: number
+        format: double
+      EmployeePreTaxPercentage:
+        required: false
+        displayName: EmployeePreTaxPercentage
+        description: Employee pre-tax contribution percentage
+        type: number
+        format: double
+      EmployeeAfterTaxAmount:
+        required: false
+        displayName: EmployeeAfterTaxAmount
+        description: Employee after tax contribution amount
+        type: number
+        format: double
+      EmployeeAfterTaxPercentage:
+        required: false
+        displayName: EmployeeAfterTaxPercentage
+        description: Employee after tax contribution percentage
+        type: number
+        format: double
+      EmployeeDeferPreTaxAmount:
+        required: false
+        displayName: EmployeeDeferPreTaxAmount
+        description: Employee defer pre-tax contribution match amount
+        type: number
+        format: double
+      EmployeeDeferPreTaxPercentage:
+        required: false
+        displayName: EmployeeDeferPreTaxPercentage
+        description: Employee defer pre-tax contribution match percentage
+        type: number
+        format: double
+      EmployeeYearToDate:
+        required: false
+        displayName: EmployeeYearToDate
+        description: Employee total year to date contribution
+        type: number
+        format: double
+      EmployerYearToDate:
+        required: false
+        displayName: EmployerYearToDate
+        description: Employer total year to date contribution
+        type: number
+        format: double
+      RolloverContributionPercentage:
+        required: false
+        displayName: RolloverContributionPercentage
+        description: Rollover contribution percentage
+        type: number
+        format: double
+      RolloverContributionAmount:
+        required: false
+        displayName: RolloverContributionAmount
+        description: Rollover contribution Amount
+        type: number
+        format: double
+  Countries:
+    displayName: Countries
+    description: List of countries
+    type: object
+    properties:
+      Country:
+        required: false
+        displayName: Country
+        description: A list of the countries
+        type: array
+        items:
+          type: Country
+  CountrySubdivisions:
+    displayName: CountrySubdivisions
+    description: List of states/provinces/subdivisions in a country
+    type: object
+    properties:
+      CountrySubdivision:
+        required: false
+        displayName: CountrySubdivision
+        description: A list of the country subdivisions
+        type: array
+        items:
+          type: CountrySubdivision
+  Customer:
+    displayName: Customer
+    type: object
+    properties:
+      CustomerId:
+        required: true
+        displayName: CustomerId
+        description: Long-term persistent identity of the customer. This identity must be unique to the owning institution.
+        type: string
+        maxLength: 128
+      Name:
+        required: true
+        displayName: Name
+        description: The customer's name
+        type: CustomerName
+      DateOfBirth:
+        required: false
+        displayName: DateOfBirth
+        description: ISO 8601 date time with milliseconds in UTC time zone.
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      TaxId:
+        required: false
+        displayName: TaxId
+        description: The SSN or TIN associated with this customer
+        type: string
+      GovernmentId:
+        required: false
+        displayName: GovernmentId
+        description: A federal (such as passport) or state (such as driver's license) issued identifier
+        type: string
+      Email:
+        required: false
+        displayName: Email
+        description: An array of the customer's electronic mail addresses
+        type: array
+        items:
+          type: string
+      Addresses:
+        required: false
+        displayName: Addresses
+        description: An array of the customer's physical mail addresses
+        type: array
+        items:
+          type: DeliveryAddress
+      Telephones:
+        required: false
+        displayName: Telephones
+        description: An array of the customer's telephone numbers
+        type: array
+        items:
+          type: TelephoneNumber
+  CustomerName:
+    displayName: CustomerName
+    type: object
+    properties:
+      First:
+        required: true
+        displayName: First
+        description: First name
+        type: string
+      Last:
+        required: true
+        displayName: Last
+        description: Last name
+        type: string
+      Prefix:
+        required: false
+        displayName: Prefix
+        description: Name prefix, e.g. Mr.
+        type: string
+      Middle:
+        required: false
+        displayName: Middle
+        description: Middle name
+        type: string
+      Suffix:
+        required: false
+        displayName: Suffix
+        description: Name suffix, e.g. Jr.
+        type: string
+      Company:
+        required: false
+        displayName: Company
+        description: Company name
+        type: string
+  DeliveryAddress:
+    displayName: DeliveryAddress
+    type: object
+    properties:
+      Line1:
+        required: true
+        displayName: Line1
+        description: The delivery location's first line
+        type: string
+        maxLength: 64
+      City:
+        required: true
+        displayName: City
+        description: The delivery location's city
+        type: string
+        maxLength: 64
+      State:
+        required: true
+        displayName: State
+        description: The delivery location's state
+        type: string
+        maxLength: 2
+      Zip:
+        required: true
+        displayName: Zip
+        description: The delivery location's zip code
+        type: string
+        maxLength: 9
+      Type:
+        required: false
+        displayName: Type
+        description: Address type
+        type: string
+        enum:
+        - BUSINESS
+        - HOME
+        - MAILING
+      Line2:
+        required: false
+        displayName: Line2
+        description: The delivery location's second line
+        type: string
+        maxLength: 64
+      Line3:
+        required: false
+        displayName: Line3
+        description: The delivery location's third line
+        type: string
+        maxLength: 64
+      Country:
+        required: false
+        displayName: Country
+        description: ISO 3166 two digit country code
+        type: string
+        enum:
+        - AD
+        - AE
+        - AF
+        - AG
+        - AI
+        - AL
+        - AM
+        - AN
+        - AO
+        - AQ
+        - AR
+        - AS
+        - AT
+        - AU
+        - AW
+        - AX
+        - AZ
+        - BA
+        - BB
+        - BD
+        - BE
+        - BF
+        - BG
+        - BH
+        - BI
+        - BJ
+        - BM
+        - BN
+        - BO
+        - BR
+        - BS
+        - BT
+        - BV
+        - BW
+        - BY
+        - BZ
+        - CA
+        - CC
+        - CD
+        - CF
+        - CG
+        - CH
+        - CI
+        - CK
+        - CL
+        - CM
+        - CN
+        - CO
+        - CR
+        - CS
+        - CU
+        - CV
+        - CX
+        - CY
+        - CZ
+        - DE
+        - DJ
+        - DK
+        - DM
+        - DO
+        - DZ
+        - EC
+        - EE
+        - EG
+        - EH
+        - ER
+        - ES
+        - ET
+        - FI
+        - FJ
+        - FK
+        - FM
+        - FO
+        - FR
+        - GA
+        - GB
+        - GD
+        - GE
+        - GF
+        - GG
+        - GH
+        - GI
+        - GL
+        - GM
+        - GN
+        - GP
+        - GQ
+        - GR
+        - GS
+        - GT
+        - GU
+        - GW
+        - GY
+        - HK
+        - HM
+        - HN
+        - HR
+        - HT
+        - HU
+        - ID
+        - IE
+        - IL
+        - IM
+        - IN
+        - IO
+        - IQ
+        - IR
+        - IS
+        - IT
+        - JE
+        - JM
+        - JO
+        - JP
+        - KE
+        - KG
+        - KH
+        - KI
+        - KM
+        - KN
+        - KP
+        - KR
+        - KW
+        - KY
+        - KZ
+        - LA
+        - LB
+        - LC
+        - LI
+        - LK
+        - LR
+        - LS
+        - LT
+        - LU
+        - LV
+        - LY
+        - MA
+        - MC
+        - MD
+        - MG
+        - MH
+        - MK
+        - ML
+        - MM
+        - MN
+        - MO
+        - MP
+        - MQ
+        - MR
+        - MS
+        - MT
+        - MU
+        - MV
+        - MW
+        - MX
+        - MY
+        - MZ
+        - NA
+        - NC
+        - NE
+        - NF
+        - NG
+        - NI
+        - NL
+        - NO
+        - NP
+        - NR
+        - NU
+        - NZ
+        - OM
+        - PA
+        - PE
+        - PF
+        - PG
+        - PH
+        - PK
+        - PL
+        - PM
+        - PN
+        - PR
+        - PS
+        - PT
+        - PW
+        - PY
+        - QA
+        - RE
+        - RO
+        - RU
+        - RW
+        - SA
+        - SB
+        - SC
+        - SD
+        - SE
+        - SG
+        - SH
+        - SI
+        - SJ
+        - SK
+        - SL
+        - SM
+        - SN
+        - SO
+        - SR
+        - ST
+        - SV
+        - SY
+        - SZ
+        - TC
+        - TD
+        - TF
+        - TG
+        - TH
+        - TJ
+        - TK
+        - TL
+        - TM
+        - TN
+        - TO
+        - TR
+        - TT
+        - TV
+        - TW
+        - TZ
+        - UA
+        - UG
+        - UM
+        - US
+        - UY
+        - UZ
+        - VA
+        - VC
+        - VE
+        - VG
+        - VI
+        - VN
+        - VU
+        - WF
+        - WS
+        - YE
+        - YT
+        - ZA
+        - ZM
+        - ZW
+  TelephoneNumber:
+    displayName: TelephoneNumber
+    description: Telephone number
+    type: object
+    properties:
+      Number:
+        required: true
+        displayName: Number
+        description: Telephone number
+        type: string
+        maxLength: 64
+      Type:
+        required: false
+        displayName: Type
+        description: Telephone type (HOME, BUSINESS, CELL, FAX)
+        type: string
+        enum:
+        - BUSINESS
+        - CELL
+        - FAX
+        - HOME
+      Country:
+        required: false
+        displayName: Country
+        description: Country calling codes defined by ITU-T recommendations E.123 and E.164
+        type: string
+        maxLength: 3
+  DebtSecurity:
+    displayName: DebtSecurity
+    type: object
+    properties:
+      ParValue:
+        required: false
+        displayName: ParValue
+        description: Par value amount
+        type: number
+        format: double
+      DebtType:
+        required: false
+        displayName: DebtType
+        description: Debt type (COUPON, ZERO)
+        type: string
+        enum:
+        - COUPON
+        - ZERO
+      DebtClass:
+        required: false
+        displayName: DebtClass
+        description: Classification of debt (TREASURY, MUNICIPAL, CORPORATE,OTHER)
+        type: string
+        enum:
+        - CORPORATE
+        - MUNICIPAL
+        - OTHER
+        - TREASURY
+      CouponRate:
+        required: false
+        displayName: CouponRate
+        description: Bond coupon rate for next closest call date
+        type: number
+        format: double
+      CouponDate:
+        required: false
+        displayName: CouponDate
+        description: Maturity date for next coupon
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      CouponMatureFrequency:
+        required: false
+        displayName: CouponMatureFrequency
+        description: 'When coupons mature. One of the following values: MONTHLY, QUARTERLY, SEMIANNUAL, ANNUAL, or OTHER'
+        type: string
+        enum:
+        - ANNUAL
+        - MONTHLY
+        - OTHER
+        - QUARTERLY
+        - SEMIANNUAL
+      CallPrice:
+        required: false
+        displayName: CallPrice
+        description: Bond call price
+        type: number
+        format: double
+      YieldToCall:
+        required: false
+        displayName: YieldToCall
+        description: Yield to next call
+        type: number
+        format: double
+      CallDate:
+        required: false
+        displayName: CallDate
+        description: Next call date
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      CallType:
+        required: false
+        displayName: CallType
+        description: Type of next call. CALL, PUT, PREFUND, MATURITY
+        type: string
+        enum:
+        - CALL
+        - MATURITY
+        - PREFUND
+        - PUT
+      YieldToMaturity:
+        required: false
+        displayName: YieldToMaturity
+        description: Yield to maturity
+        type: number
+        format: double
+  DepositAccount:
+    displayName: DepositAccount
+    description: Extends and inherits all fields from Account.
+    type: Account
+    properties:
+      BalanceAsOf:
+        required: true
+        displayName: BalanceAsOf
+        description: As-of date of balances
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      CurrentBalance:
+        required: true
+        displayName: CurrentBalance
+        description: Balance of funds in account
+        type: number
+        format: double
+      OpeningDayBalance:
+        required: false
+        displayName: OpeningDayBalance
+        description: Day's opening fund balance
+        type: number
+        format: double
+      AvailableBalance:
+        required: false
+        displayName: AvailableBalance
+        description: Balance of funds available for use
+        type: number
+        format: double
+      AnnualPercentageYield:
+        required: false
+        displayName: AnnualPercentageYield
+        description: Annual Percentage Yield
+        type: number
+        format: double
+      InterestYtd:
+        required: false
+        displayName: InterestYtd
+        description: YTD Interest
+        type: number
+        format: double
+      Term:
+        required: false
+        displayName: Term
+        description: Term of CD in months
+        type: integer
+        format: int32
+      MaturityDate:
+        required: false
+        displayName: MaturityDate
+        description: Maturity date for CDs
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      Transactions:
+        required: false
+        displayName: Transactions
+        description: Array of DepositTransaction
+        type: array
+        items:
+          type: DepositTransaction
+  DepositTransaction:
+    displayName: DepositTransaction
+    description: Extends and inherits all fields from Transaction.
+    type: Transaction
+    properties:
+      TransactionType:
+        required: true
+        displayName: TransactionType
+        description: CHECK, WITHDRAWAL, TRANSFER, POSDEBIT, ATMWITHDRAWAL, BILLPAYMENT, FEE, DEPOSIT, ADJUSTMENT,INTEREST, DIVIDEND, DIRECTDEPOSIT, ATMDEPOSIT, POSCREDIT
+        type: string
+        enum:
+        - ADJUSTMENT
+        - ATMDEPOSIT
+        - ATMWITHDRAWAL
+        - BILLPAYMENT
+        - CHECK
+        - DEPOSIT
+        - DIRECTDEPOSIT
+        - DIVIDEND
+        - FEE
+        - INTEREST
+        - POSCREDIT
+        - POSDEBIT
+        - TRANSFER
+        - WITHDRAWAL
+      Payee:
+        required: false
+        displayName: Payee
+        description: Payee name
+        type: string
+        maxLength: 255
+      CheckNumber:
+        required: false
+        displayName: CheckNumber
+        description: Check number
+        type: integer
+        format: int64
+  Transaction:
+    displayName: Transaction
+    type: object
+    properties:
+      AccountId:
+        required: true
+        displayName: AccountId
+        description: Corresponds to AccountId in Account
+        type: string
+        maxLength: 128
+      TransactionId:
+        required: true
+        displayName: TransactionId
+        description: Long term persistent identity of the transaction (unique to account)
+        type: string
+        maxLength: 128
+      TransactionTimestamp:
+        required: true
+        displayName: TransactionTimestamp
+        description: The date and time that the transaction was added to the server backend systems
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      Description:
+        required: true
+        displayName: Description
+        description: The description of the transaction
+        type: string
+      Amount:
+        required: true
+        displayName: Amount
+        description: The amount of money in the account currency
+        type: number
+        format: double
+      TransactionObjectType:
+        required: false
+        displayName: TransactionObjectType
+        description: for Polymorphism
+        type: string
+      ReferenceTransactionId:
+        required: false
+        displayName: ReferenceTransactionId
+        description: For reverse postings, the identity of the transaction being reversed. For the correction transaction, the identity of the reversing post. For credit card posting transactions, the identity of the authorization transaction.
+        type: string
+        maxLength: 128
+      PostedTimestamp:
+        required: false
+        displayName: PostedTimestamp
+        description: The date and time that the transaction was posted to the account. If not provided then TransactionTimestamp can be used as PostedTimeStamp.
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      Memo:
+        required: false
+        displayName: Memo
+        description: Secondary transaction description
+        type: string
+        maxLength: 255
+      DebitCreditMemo:
+        required: false
+        displayName: DebitCreditMemo
+        description: DEBIT, CREDIT, MEMO
+        type: string
+        enum:
+        - CREDIT
+        - DEBIT
+        - MEMO
+      Category:
+        required: false
+        displayName: Category
+        description: Transaction category, preferably MCC or SIC.
+        type: string
+      SubCategory:
+        required: false
+        displayName: SubCategory
+        description: Transaction category detail
+        type: string
+      Reference:
+        required: false
+        displayName: Reference
+        description: A tracking reference identifier
+        type: string
+      Status:
+        required: false
+        displayName: Status
+        description: PENDING, MEMO, POSTED, AUTHORIZATION
+        type: string
+        enum:
+        - AUTHORIZATION
+        - MEMO
+        - PENDING
+        - POSTED
+      ForeignAmount:
+        required: false
+        displayName: ForeignAmount
+        description: The amount of money in the foreign currency
+        type: number
+        format: double
+      ForeignCurrency:
+        required: false
+        displayName: ForeignCurrency
+        description: The ISO 4217 code of the foreign currency
+        type: string
+        enum:
+        - AED
+        - AFN
+        - ALL
+        - AMD
+        - ANG
+        - AOA
+        - ARS
+        - AUD
+        - AWG
+        - AZN
+        - BAM
+        - BBD
+        - BDT
+        - BGN
+        - BHD
+        - BIF
+        - BMD
+        - BND
+        - BOB
+        - BOV
+        - BRL
+        - BSD
+        - BTN
+        - BWP
+        - BYR
+        - BZD
+        - CAD
+        - CDF
+        - CHE
+        - CHF
+        - CHW
+        - CLF
+        - CLP
+        - CNY
+        - COP
+        - COU
+        - CRC
+        - CUC
+        - CUP
+        - CVE
+        - CZK
+        - DJF
+        - DKK
+        - DOP
+        - DZD
+        - EGP
+        - ERN
+        - ETB
+        - EUR
+        - FJD
+        - FKP
+        - GBP
+        - GEL
+        - GHS
+        - GIP
+        - GMD
+        - GNF
+        - GTQ
+        - GYD
+        - HKD
+        - HNL
+        - HRK
+        - HTG
+        - HUF
+        - IDR
+        - ILS
+        - INR
+        - IQD
+        - IRR
+        - ISK
+        - JMD
+        - JOD
+        - JPY
+        - KES
+        - KGS
+        - KHR
+        - KMF
+        - KPW
+        - KRW
+        - KWD
+        - KYD
+        - KZT
+        - LAK
+        - LBP
+        - LKR
+        - LRD
+        - LSL
+        - LYD
+        - MAD
+        - MDL
+        - MGA
+        - MKD
+        - MMK
+        - MNT
+        - MOP
+        - MRO
+        - MUR
+        - MVR
+        - MWK
+        - MXN
+        - MXV
+        - MYR
+        - MZN
+        - NAD
+        - NGN
+        - NIO
+        - NOK
+        - NPR
+        - NZD
+        - OMR
+        - PAB
+        - PEN
+        - PGK
+        - PHP
+        - PKR
+        - PLN
+        - PYG
+        - QAR
+        - RON
+        - RSD
+        - RUB
+        - RWF
+        - SAR
+        - SBD
+        - SCR
+        - SDG
+        - SEK
+        - SGD
+        - SHP
+        - SLL
+        - SOS
+        - SRD
+        - SSP
+        - STD
+        - SVC
+        - SYP
+        - SZL
+        - THB
+        - TJS
+        - TMT
+        - TND
+        - TOP
+        - TRY
+        - TTD
+        - TWD
+        - TZS
+        - UAH
+        - UGX
+        - USD
+        - USN
+        - UYI
+        - UYU
+        - UZS
+        - VEF
+        - VND
+        - VUV
+        - WST
+        - XAF
+        - XAG
+        - XAU
+        - XBA
+        - XBB
+        - XBC
+        - XBD
+        - XCD
+        - XDR
+        - XOF
+        - XPD
+        - XPF
+        - XPT
+        - XSU
+        - XTS
+        - XUA
+        - XXX
+        - YER
+        - ZAR
+        - ZMW
+        - ZWL
+      ImageIds:
+        required: false
+        displayName: ImageIds
+        description: Array of Image Identifiers (unique to Transaction) used to retrieve Images of check or transaction receipt
+        type: array
+        items:
+          type: string
+      LineItem:
+        required: false
+        displayName: LineItem
+        description: Breakdown of the transaction details
+        type: array
+        items:
+          type: LineItem
+      FiAttributes:
+        required: false
+        displayName: FiAttributes
+        description: Array of FI-specific attributes
+        type: array
+        items:
+          type: FiAttribute
+  LineItem:
+    displayName: LineItem
+    description: LineItem
+    type: object
+    properties:
+      Description:
+        required: true
+        displayName: Description
+        description: The description of the line item
+        type: string
+      Amount:
+        required: true
+        displayName: Amount
+        description: The amount of money attributable to this line item
+        type: number
+        format: double
+      CheckNumber:
+        required: false
+        displayName: CheckNumber
+        description: Check number
+        type: integer
+        format: int64
+      Memo:
+        required: false
+        displayName: Memo
+        description: Secondary item description
+        type: string
+        maxLength: 255
+      Reference:
+        required: false
+        displayName: Reference
+        description: A reference number
+        type: string
+      ImageIds:
+        required: false
+        displayName: ImageIds
+        description: Array of image identifiers (unique to transaction) used to retrieve images of check or transaction receipt
+        type: array
+        items:
+          type: string
+  FiPortion:
+    displayName: FiPortion
+    type: object
+    properties:
+      AssetClass:
+        required: false
+        displayName: AssetClass
+        description: FI-specific asset class
+        type: string
+      Percent:
+        required: false
+        displayName: Percent
+        description: Percentage of asset class that falls under this asset
+        type: number
+        format: double
+  Holding:
+    displayName: Holding
+    type: object
+    properties:
+      Units:
+        required: true
+        displayName: Units
+        description: Required for stock, mutual funds. Number of shares (with decimals).
+        type: number
+        format: double
+      HoldingId:
+        required: false
+        displayName: HoldingId
+        description: Long term persistent identity of the holding
+        type: string
+        maxLength: 128
+      SecurityId:
+        required: false
+        displayName: SecurityId
+        description: Unique identifier of security
+        type: string
+      SecurityIdType:
+        required: false
+        displayName: SecurityIdType
+        description: Security identifier type
+        type: string
+        enum:
+        - CUSIP
+        - ISIN
+        - SEDOL
+        - SICC
+        - VALOR
+        - WKN
+      HoldingName:
+        required: false
+        displayName: HoldingName
+        description: Holding name or security name
+        type: string
+      HoldingType:
+        required: false
+        displayName: HoldingType
+        description: STOCK, BOND, MUTUALFUND, CD, ANNUITY, OPTIONS
+        type: string
+        enum:
+        - ANNUITY
+        - BOND
+        - CD
+        - MUTUALFUND
+        - OPTIONS
+        - STOCK
+      HoldingSubType:
+        required: false
+        displayName: HoldingSubType
+        description: MONEYMARKET, CASH
+        type: string
+        enum:
+        - CASH
+        - MONEYMARKET
+      PositionType:
+        required: false
+        displayName: PositionType
+        description: LONG, SHORT
+        type: string
+        enum:
+        - LONG
+        - SHORT
+      HeldInAccount:
+        required: false
+        displayName: HeldInAccount
+        description: Sub-account CASH, MARGIN, SHORT, OTHER
+        type: string
+        enum:
+        - CASH
+        - MARGIN
+        - OTHER
+        - SHORT
+      Description:
+        required: false
+        displayName: Description
+        description: The description of the holding
+        type: string
+      Symbol:
+        required: false
+        displayName: Symbol
+        description: Ticker / Market symbol
+        type: string
+      OriginalPurchaseDate:
+        required: false
+        displayName: OriginalPurchaseDate
+        description: Date of original purchase
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      PurchasedPrice:
+        required: false
+        displayName: PurchasedPrice
+        description: Price of holding at the time of purchase
+        type: number
+        format: double
+      CurrentUnitPrice:
+        required: false
+        displayName: CurrentUnitPrice
+        description: Current unit price
+        type: number
+        format: double
+      ChangeInPrice:
+        required: false
+        displayName: ChangeInPrice
+        description: Change in current price compared to previous day's close
+        type: number
+        format: double
+      CurrentUnitPriceDate:
+        required: false
+        displayName: CurrentUnitPriceDate
+        description: Current unit price as of date
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      MarketValue:
+        required: false
+        displayName: MarketValue
+        description: Market value at the time of data retrieved
+        type: number
+        format: double
+      FaceValue:
+        required: false
+        displayName: FaceValue
+        description: Required for bonds. Face value at the time of data retrieved.
+        type: number
+        format: double
+      AverageCost:
+        required: false
+        displayName: AverageCost
+        description: Cost is average of all purchases for holding
+        type: boolean
+      CashAccount:
+        required: false
+        displayName: CashAccount
+        description: If true, indicates that this holding is used to maintain proceeds from sales, dividends, and other cash postings to the investment account
+        type: boolean
+      Rate:
+        required: false
+        displayName: Rate
+        description: For CDs, bonds, and other rate based holdings
+        type: number
+        format: double
+      ExpirationDate:
+        required: false
+        displayName: ExpirationDate
+        description: For CDs, bonds, and other time-based holdings
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      Inv401kSource:
+        required: false
+        displayName: Inv401kSource
+        description: Source for money for this security. PRETAX, AFTERTAX, MATCH, PROFITSHARING, ROLLOVER, OTHERVEST, OTHERNONVEST
+        type: string
+        enum:
+        - AFTERTAX
+        - MATCH
+        - OTHERNONVEST
+        - OTHERVEST
+        - PRETAX
+        - PROFITSHARING
+        - ROLLOVER
+      Currency:
+        required: false
+        displayName: Currency
+        description: Currency information if it is different from Account entity
+        type: Currency
+      AssetClasses:
+        required: false
+        displayName: AssetClasses
+        description: Percent breakdown by asset class
+        type: array
+        items:
+          type: Portion
+      FiAssetClasses:
+        required: false
+        displayName: FiAssetClasses
+        description: Percent breakdown by FI-specific asset class percentage breakdown
+        type: array
+        items:
+          type: FiPortion
+      FiAttributes:
+        required: false
+        displayName: FiAttributes
+        description: Array of FI-specific attributes
+        type: array
+        items:
+          type: FiAttribute
+      TaxLots:
+        required: false
+        displayName: TaxLots
+        description: Breakdown by tax lot
+        type: array
+        items:
+          type: TaxLot
+      MutualFundSecurity:
+        required: false
+        displayName: MutualFundSecurity
+        description: 'Information about the MutualFundSecurity (Only one of the fields will be available: MutualFundSecurity, OptionSecurity, OtherSecurity, StockSecurity, SweepSecurity, or DebtSecurity)'
+        type: MutualFundSecurity
+      OptionSecurity:
+        required: false
+        displayName: OptionSecurity
+        description: 'Information about the OptionSecurity (Only one of the fields will be available: MutualFundSecurity, OptionSecurity, OtherSecurity, StockSecurity, SweepSecurity, or DebtSecurity)'
+        type: OptionSecurity
+      OtherSecurity:
+        required: false
+        displayName: OtherSecurity
+        description: 'Information about the OtherSecurity (Only one of the fields will be available: MutualFundSecurity, OptionSecurity, OtherSecurity, StockSecurity, SweepSecurity, or DebtSecurity)'
+        type: OtherSecurity
+      StockSecurity:
+        required: false
+        displayName: StockSecurity
+        description: 'Information about the StockSecurity (Only one of the fields will be available: MutualFundSecurity, OptionSecurity, OtherSecurity, StockSecurity, SweepSecurity, or DebtSecurity)'
+        type: StockSecurity
+      SweepSecurity:
+        required: false
+        displayName: SweepSecurity
+        description: 'Information about the SweepSecurity (Only one of the fields will be available: MutualFundSecurity, OptionSecurity, OtherSecurity, StockSecurity, SweepSecurity, or DebtSecurity)'
+        type: SweepSecurity
+      DebtSecurity:
+        required: false
+        displayName: DebtSecurity
+        description: 'Information about the DebtSecurity (Only one of the fields will be available: MutualFundSecurity, OptionSecurity, OtherSecurity, StockSecurity, SweepSecurity, or DebtSecurity)'
+        type: DebtSecurity
+  Portion:
+    displayName: Portion
+    type: object
+    properties:
+      AssetClass:
+        required: false
+        displayName: AssetClass
+        description: DOMESTICBOND, INTLBOND, LARGESTOCK, SMALLSTOCK, INTLSTOCK, MONEYMARKET, OTHER
+        type: string
+        enum:
+        - DOMESTICBOND
+        - INTLBOND
+        - INTLSTOCK
+        - LARGESTOCK
+        - MONEYMARKET
+        - OTHER
+        - SMALLSTOCK
+      Percent:
+        required: false
+        displayName: Percent
+        description: Percentage of asset class that falls under this asset
+        type: number
+        format: double
+  TaxLot:
+    displayName: TaxLot
+    type: object
+    properties:
+      OriginalPurchaseDate:
+        required: false
+        displayName: OriginalPurchaseDate
+        description: Lot acquired date
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      Quantity:
+        required: false
+        displayName: Quantity
+        description: Lot quantity
+        type: number
+        format: double
+      PurchasedPrice:
+        required: false
+        displayName: PurchasedPrice
+        description: Original purchase price
+        type: number
+        format: double
+      CostBasis:
+        required: false
+        displayName: CostBasis
+        description: Total amount of money spent acquiring this lot including any fees or commission expenses incurred
+        type: number
+        format: double
+      CurrentValue:
+        required: false
+        displayName: CurrentValue
+        description: Lot market value
+        type: number
+        format: double
+      PositionType:
+        required: false
+        displayName: PositionType
+        description: LONG, SHORT
+        type: string
+        enum:
+        - LONG
+        - SHORT
+  MutualFundSecurity:
+    displayName: MutualFundSecurity
+    type: object
+    properties:
+      MutualFundType:
+        required: false
+        displayName: MutualFundType
+        description: Mutual fund type. OPENEND, CLOSEEND, OTHER
+        type: string
+        enum:
+        - CLOSEEND
+        - OPENEND
+        - OTHER
+      UnitsStreet:
+        required: false
+        displayName: UnitsStreet
+        description: Units in the FI's street name, positive quantity
+        type: number
+        format: double
+      UnitsUser:
+        required: false
+        displayName: UnitsUser
+        description: Units in user's name directly, positive quantity
+        type: number
+        format: double
+      ReinvestDividends:
+        required: false
+        displayName: ReinvestDividends
+        description: Reinvest dividends
+        type: boolean
+      ReinvestCapitalGains:
+        required: false
+        displayName: ReinvestCapitalGains
+        description: Reinvest capital gains
+        type: boolean
+      Yield:
+        required: false
+        displayName: Yield
+        description: Current yield reported as portion of the fund's assets
+        type: number
+        format: double
+      YieldAsOfDate:
+        required: false
+        displayName: YieldAsOfDate
+        description: As-of date for yield value
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+  OptionSecurity:
+    displayName: OptionSecurity
+    type: object
+    properties:
+      Secured:
+        required: false
+        displayName: Secured
+        description: How the option is secured. NAKED, COVERED.
+        type: string
+        enum:
+        - COVERED
+        - NAKED
+      OptionType:
+        required: false
+        displayName: OptionType
+        description: 'Option type: PUT = put, CALL = call'
+        type: string
+        enum:
+        - CALL
+        - PUT
+      StrikePrice:
+        required: false
+        displayName: StrikePrice
+        description: Strike price / Unit price
+        type: number
+        format: double
+      ExpireDate:
+        required: false
+        displayName: ExpireDate
+        description: Expiration date of option
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      SharesPerContract:
+        required: false
+        displayName: SharesPerContract
+        description: Shares per contract
+        type: number
+        format: double
+  OtherSecurity:
+    displayName: OtherSecurity
+    type: object
+    properties:
+      TypeDescription:
+        required: false
+        displayName: TypeDescription
+        description: Description of Other Security
+        type: string
+  StockSecurity:
+    displayName: StockSecurity
+    type: object
+    properties:
+      UnitsStreet:
+        required: false
+        displayName: UnitsStreet
+        description: Units in the FI's street name, positive quantity
+        type: number
+        format: double
+      UnitsUser:
+        required: false
+        displayName: UnitsUser
+        description: Units in user's name directly, positive quantity
+        type: number
+        format: double
+      ReinvestDividends:
+        required: false
+        displayName: ReinvestDividends
+        description: Reinvest dividends
+        type: boolean
+      StockType:
+        required: false
+        displayName: StockType
+        description: COMMON, PREFERRED, CONVERTIBLE, OTHER
+        type: string
+        enum:
+        - COMMON
+        - CONVERTIBLE
+        - OTHER
+        - PREFERRED
+      Yield:
+        required: false
+        displayName: Yield
+        description: Current yield
+        type: number
+        format: double
+      YieldAsOfDate:
+        required: false
+        displayName: YieldAsOfDate
+        description: Yield as-of date
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+  SweepSecurity:
+    displayName: SweepSecurity
+    type: object
+    properties:
+      CurrentBalance:
+        required: true
+        displayName: CurrentBalance
+        description: Balance of funds in account
+        type: number
+        format: double
+      BalanceAsOf:
+        required: true
+        displayName: BalanceAsOf
+        description: As-of date of balances
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      AvailableBalance:
+        required: false
+        displayName: AvailableBalance
+        description: Balance of funds available for use
+        type: number
+        format: double
+      Checks:
+        required: false
+        displayName: Checks
+        description: Whether or not checks can be written on the account
+        type: boolean
+  InvestmentAccount:
+    displayName: InvestmentAccount
+    description: Extends and inherits all fields from Account.
+    type: Account
+    properties:
+      BalanceAsOf:
+        required: true
+        displayName: BalanceAsOf
+        description: As-of date for balances
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      CurrentValue:
+        required: true
+        displayName: CurrentValue
+        description: Total current value of all investments
+        type: number
+        format: double
+      AllowedCheckWriting:
+        required: false
+        displayName: AllowedCheckWriting
+        description: Check writing privileges
+        type: boolean
+      AllowedOptionTrade:
+        required: false
+        displayName: AllowedOptionTrade
+        description: Allowed to trade options
+        type: boolean
+      Holdings:
+        required: false
+        displayName: Holdings
+        description: Array of holdings
+        type: array
+        items:
+          type: Holding
+      OpenOrders:
+        required: false
+        displayName: OpenOrders
+        description: Array of open orders
+        type: array
+        items:
+          type: OpenOrder
+      Contribution:
+        required: false
+        displayName: Contribution
+        description: Describes how new contributions are distributed among the available securities
+        type: array
+        items:
+          type: Contribution
+      Vesting:
+        required: false
+        displayName: Vesting
+        description: Provides the past, present, and future vesting schedule and percentages
+        type: array
+        items:
+          type: Vesting
+      InvestmentLoans:
+        required: false
+        displayName: InvestmentLoans
+        description: Array of investment loans
+        type: array
+        items:
+          type: InvestmentLoan
+      AvailableCashBalance:
+        required: false
+        displayName: AvailableCashBalance
+        description: Cash balance across all sub-accounts. Should include sweep funds.
+        type: number
+        format: double
+      Margin:
+        required: false
+        displayName: Margin
+        description: Margin trading is allowed
+        type: boolean
+      MarginBalance:
+        required: false
+        displayName: MarginBalance
+        description: Margin balance
+        type: number
+        format: double
+      ShortBalance:
+        required: false
+        displayName: ShortBalance
+        description: Short Balance
+        type: number
+        format: double
+      RolloverAmount:
+        required: false
+        displayName: RolloverAmount
+        description: Rollover Amount
+        type: number
+        format: double
+      EmployerName:
+        required: false
+        displayName: EmployerName
+        description: Name of the employer in investment 401k Plan
+        type: string
+      BrokerId:
+        required: false
+        displayName: BrokerId
+        description: Unique identifier FI
+        type: string
+      PlanId:
+        required: false
+        displayName: PlanId
+        description: Plan number for Investment 401k plan
+        type: string
+      CalendarYearFor401k:
+        required: false
+        displayName: CalendarYearFor401k
+        description: Date for this calendar year for 401K account
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      BalanceList:
+        required: false
+        displayName: BalanceList
+        description: Balance List. Name value pair aggregate.
+        type: array
+        items:
+          type: InvestmentBalance
+      DailyChange:
+        required: false
+        displayName: DailyChange
+        description: Daily change
+        type: number
+        format: double
+      PercentageChange:
+        required: false
+        displayName: PercentageChange
+        description: Percentage change
+        type: number
+        format: double
+      Transactions:
+        required: false
+        displayName: Transactions
+        description: Array of InvestmentTransaction
+        type: array
+        items:
+          type: InvestmentTransaction
+  OpenOrder:
+    displayName: OpenOrder
+    type: object
+    properties:
+      OrderId:
+        required: true
+        displayName: OrderId
+        description: Long term persistent identity of the order. Id for this order transaction.
+        type: string
+        maxLength: 128
+      Symbol:
+        required: true
+        displayName: Symbol
+        description: Market symbol
+        type: string
+      Units:
+        required: true
+        displayName: Units
+        description: Number of units (shares or bonds etc).
+        type: number
+        format: double
+      OrderType:
+        required: true
+        displayName: OrderType
+        description: Type of order BUY, SELL, BUYTOCOVER, BUYTOOPEN, SELLTOCOVER, SELLTOOPEN, SELLSHORT, SELLCLOSE
+        type: string
+        enum:
+        - BUY
+        - BUYTOCOVER
+        - BUYTOOPEN
+        - SELL
+        - SELLCLOSE
+        - SELLSHORT
+        - SELLTOCOVER
+        - SELLTOOPEN
+      OrderDate:
+        required: true
+        displayName: OrderDate
+        description: Order date
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      SecurityId:
+        required: false
+        displayName: SecurityId
+        description: Unique identifier of security
+        type: string
+      SecurityIdType:
+        required: false
+        displayName: SecurityIdType
+        description: Security identifier type
+        type: string
+        enum:
+        - CUSIP
+        - ISIN
+        - SEDOL
+        - SICC
+        - VALOR
+        - WKN
+      Description:
+        required: false
+        displayName: Description
+        description: Description
+        type: string
+      UnitPrice:
+        required: false
+        displayName: UnitPrice
+        description: Unit price
+        type: number
+        format: double
+      UnitType:
+        required: false
+        displayName: UnitType
+        description: Type of unit SHARES, CURRENCY
+        type: string
+        enum:
+        - CURRENCY
+        - SHARES
+      OrderDuration:
+        required: false
+        displayName: OrderDuration
+        description: This order is good for DAY, GOODTILLCANCEL, IMMEDIATE
+        type: string
+        enum:
+        - DAY
+        - GOODTILLCANCEL
+        - IMMEDIATE
+      SubAccount:
+        required: false
+        displayName: SubAccount
+        description: CASH, MARGIN, SHORT, OTHER
+        type: string
+        enum:
+        - CASH
+        - MARGIN
+        - OTHERS
+        - SHORT
+      LimitPrice:
+        required: false
+        displayName: LimitPrice
+        description: Limit price
+        type: number
+        format: double
+      StopPrice:
+        required: false
+        displayName: StopPrice
+        description: StopPrice
+        type: number
+        format: double
+  Vesting:
+    displayName: Vesting
+    type: object
+    properties:
+      VestingDate:
+        required: false
+        displayName: VestingDate
+        description: Vesting date
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      Symbol:
+        required: false
+        displayName: Symbol
+        description: Security symbol
+        type: string
+      StrikePrice:
+        required: false
+        displayName: StrikePrice
+        description: Strike price
+        type: number
+        format: double
+      VestingPercentage:
+        required: false
+        displayName: VestingPercentage
+        description: Vesting Percentage
+        type: number
+        format: double
+      OtherVestAmount:
+        required: false
+        displayName: OtherVestAmount
+        description: Other Vest Amount
+        type: number
+        format: double
+      OtherVestPercentage:
+        required: false
+        displayName: OtherVestPercentage
+        description: Other Vest Percentage
+        type: number
+        format: double
+      VestedBalance:
+        required: false
+        displayName: VestedBalance
+        description: Vested Balance
+        type: number
+        format: double
+      UnVestedBalance:
+        required: false
+        displayName: UnVestedBalance
+        description: UnVested Balance
+        type: number
+        format: double
+  InvestmentLoan:
+    displayName: InvestmentLoan
+    type: object
+    properties:
+      LoanId:
+        required: true
+        displayName: LoanId
+        description: Unique identifier for this loan
+        type: string
+      CurrentLoanBalance:
+        required: true
+        displayName: CurrentLoanBalance
+        description: Current loan principal balance amount
+        type: number
+        format: double
+      DateAsOf:
+        required: true
+        displayName: DateAsOf
+        description: Date and time of current loan balance
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      LoanDescription:
+        required: false
+        displayName: LoanDescription
+        description: Description
+        type: string
+      InitialLoanBalance:
+        required: false
+        displayName: InitialLoanBalance
+        description: Initial loan balance amount
+        type: number
+        format: double
+      LoanStartDate:
+        required: false
+        displayName: LoanStartDate
+        description: Start date of the loan
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      LoanRate:
+        required: false
+        displayName: LoanRate
+        description: Loan annual interest rate for the loan
+        type: number
+        format: double
+      LoanPaymentAmount:
+        required: false
+        displayName: LoanPaymentAmount
+        description: Loan payment amount
+        type: number
+        format: double
+      LoanPaymentFrequency:
+        required: false
+        displayName: LoanPaymentFrequency
+        description: WEEKLY, BIWEEKLY, TWICEMONTHLY, MONTHLY,FOURWEEKS, BIMONTHLY, QUARTERLY, SEMIANNUALLY, ANNUALLY, OTHER
+        type: string
+        enum:
+        - ANNUALLY
+        - BIMONTHLY
+        - BIWEEKLY
+        - FOURWEEKS
+        - MONTHLY
+        - OTHER
+        - QUARTERLY
+        - SEMIANNUALLY
+        - TWICEMONTHLY
+        - WEEKLY
+      LoanPaymentInitial:
+        required: false
+        displayName: LoanPaymentInitial
+        description: Initial number of loan payments
+        type: number
+        format: double
+      LoanPaymentsRemaining:
+        required: false
+        displayName: LoanPaymentsRemaining
+        description: Remaining number of loan payments
+        type: integer
+        format: int32
+      LoanMaturityDate:
+        required: false
+        displayName: LoanMaturityDate
+        description: Expected loan end date
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      LoanInterestToDate:
+        required: false
+        displayName: LoanInterestToDate
+        description: Total interest paid to date on this loan
+        type: number
+        format: double
+      LoanTotalProjectedInterest:
+        required: false
+        displayName: LoanTotalProjectedInterest
+        description: Total projected interest to be paid on this loan
+        type: number
+        format: double
+      LoanNextPaymentDate:
+        required: false
+        displayName: LoanNextPaymentDate
+        description: The next payment date for the loan
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+  InvestmentBalance:
+    displayName: InvestmentBalance
+    type: object
+    properties:
+      BalanceName:
+        required: false
+        displayName: BalanceName
+        description: Name of the balance
+        type: string
+      BalanceDescription:
+        required: false
+        displayName: BalanceDescription
+        description: Description of balance
+        type: string
+      BalanceType:
+        required: false
+        displayName: BalanceType
+        description: AMOUNT, PERCENTAGE
+        type: string
+        enum:
+        - AMOUNT
+        - PERCENTAGE
+      BalanceValue:
+        required: false
+        displayName: BalanceValue
+        description: Value of balance name
+        type: number
+        format: double
+      BalanceDate:
+        required: false
+        displayName: BalanceDate
+        description: Date as of this balance
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      Currency:
+        required: false
+        displayName: Currency
+        description: Currency if different from that of account
+        type: Currency
+  InvestmentTransaction:
+    displayName: InvestmentTransaction
+    description: Extends and inherits all fields from Transaction.
+    type: Transaction
+    properties:
+      TransactionType:
+        required: true
+        displayName: TransactionType
+        description: PURCHASED, SOLD, PURCHASEDTOCOVERADJUSTMENT, PURCHASETOOPEN, PURCHASETOCLOSE, SOLDTOOPEN, SOLDTOCLOSE, INTEREST, MARGININTEREST, REINVESTOFINCOME, RETURNOFCAPITAL, TRANSFER, CONTRIBUTION, FEE, OPTIONEXERCISE, OPTIONEXPIRATION, DIVIDEND, DIVIDENDREINVEST, SPLIT, CLOSURE, INCOME, EXPENSE, CLOSUREOPT, INVEXPENSE, JRNLSEC, JRNLFUND, OTHER, DIV, SRVCHG, DEP, ATM, POS, XFER, CHECK, PAYMENT, CASH, DIRECTDEP, DIRECTDEBIT, REPEATPMT
+        type: string
+        enum:
+        - ADJUSTMENT
+        - ATM
+        - CASH
+        - CHECK
+        - CLOSURE
+        - CLOSUREOPT
+        - CONTRIBUTION
+        - DEP
+        - DIRECTDEBIT
+        - DIRECTDEP
+        - DIV
+        - DIVIDEND
+        - DIVIDENDREINVEST
+        - EXPENSE
+        - FEE
+        - INCOME
+        - INTEREST
+        - INVEXPENSE
+        - JRNLFUND
+        - JRNLSEC
+        - MARGININTEREST
+        - OPTIONEXERCISE
+        - OPTIONEXPIRATION
+        - OTHER
+        - PAYMENT
+        - POS
+        - PURCHASED
+        - PURCHASEDTOCOVER
+        - PURCHASETOCLOSE
+        - PURCHASETOOPEN
+        - REINVESTOFINCOME
+        - REPEATPMT
+        - RETURNOFCAPITAL
+        - SOLD
+        - SOLDTOCLOSE
+        - SOLDTOOPEN
+        - SPLIT
+        - SRVCHG
+        - TRANSFER
+        - XFER
+      Shares:
+        required: false
+        displayName: Shares
+        description: Required for stock, mutual funds. Number of shares (with decimals). Negative numbers indicate securities are being removed from the account.
+        type: number
+        format: double
+      FaceValue:
+        required: false
+        displayName: FaceValue
+        description: Cash value for bonds
+        type: number
+        format: double
+      Price:
+        required: false
+        displayName: Price
+        description: Unit purchase price
+        type: number
+        format: double
+      SecurityId:
+        required: false
+        displayName: SecurityId
+        description: Unique identifier of security
+        type: string
+      SecurityIdType:
+        required: false
+        displayName: SecurityIdType
+        description: Security identifier type
+        type: string
+        enum:
+        - CUSIP
+        - ISIN
+        - SEDOL
+        - SICC
+        - VALOR
+        - WKN
+      SecurityType:
+        required: false
+        displayName: SecurityType
+        description: STOCK, MUTUALFUND, DEBT, OPTION, SWEEP, OTHER
+        type: string
+        enum:
+        - DEBT
+        - MUTUALFUND
+        - OPTION
+        - OTHER
+        - STOCK
+        - SWEEP
+      Symbol:
+        required: false
+        displayName: Symbol
+        description: Ticker symbol
+        type: string
+      Markup:
+        required: false
+        displayName: Markup
+        description: Portion of unit price that is attributed to the dealer markup
+        type: number
+        format: double
+      Commission:
+        required: false
+        displayName: Commission
+        description: Transaction commission
+        type: number
+        format: double
+      Taxes:
+        required: false
+        displayName: Taxes
+        description: Taxes on the trade
+        type: number
+        format: double
+      Fees:
+        required: false
+        displayName: Fees
+        description: Fees applied to the trade
+        type: number
+        format: double
+      Load:
+        required: false
+        displayName: Load
+        description: Load on the transaction
+        type: number
+        format: double
+      Inv401kSource:
+        required: false
+        displayName: Inv401kSource
+        description: Source of money. PRETAX, AFTERTAX, MATCH,PROFITSHARING,ROLLOVER, OTHERVEST, OTHERNONVEST
+        type: string
+        enum:
+        - AFTERTAX
+        - MATCH
+        - OTHERNONVEST
+        - OTHERVEST
+        - PRETAX
+        - PROFITSHARING
+        - ROLLOVER
+      ConfirmationNumber:
+        required: false
+        displayName: ConfirmationNumber
+        description: Confirmation number of the transaction
+        type: string
+      FractionalCash:
+        required: false
+        displayName: FractionalCash
+        description: Cash for fractional units (used for stock splits)
+        type: number
+        format: double
+      IncomeType:
+        required: false
+        displayName: IncomeType
+        description: 'Type of investment income: CGLONG (capital gains-long term), CGSHORT (capital gains-short term), MISC'
+        type: string
+        enum:
+        - CGLONG
+        - CGSHORT
+        - MISC
+      OldUnits:
+        required: false
+        displayName: OldUnits
+        description: Number of shares before split
+        type: number
+        format: double
+      SplitRatioNumerator:
+        required: false
+        displayName: SplitRatioNumerator
+        description: Split ratio numerator
+        type: number
+        format: double
+      SplitRatioDenominator:
+        required: false
+        displayName: SplitRatioDenominator
+        description: Split ratio denominator
+        type: number
+        format: double
+      NewUnits:
+        required: false
+        displayName: NewUnits
+        description: Number of shares after split
+        type: number
+        format: double
+      SubAccountSec:
+        required: false
+        displayName: SubAccountSec
+        description: 'Sub-account security Type: CASH, MARGIN, SHORT and OTHERS'
+        type: string
+        enum:
+        - CASH
+        - MARGIN
+        - OTHERS
+        - SHORT
+      SubAccountFund:
+        required: false
+        displayName: SubAccountFund
+        description: 'From which account money came in: CASH, MARGIN, SHORT and OTHERS'
+        type: string
+        enum:
+        - CASH
+        - MARGIN
+        - OTHERS
+        - SHORT
+      LoanId:
+        required: false
+        displayName: LoanId
+        description: For 401k accounts only. This indicates the transaction was due to a loan or a loan repayment.
+        type: string
+      LoanPrincipal:
+        required: false
+        displayName: LoanPrincipal
+        description: How much loan pre-payment is principal
+        type: number
+        format: double
+      LoanInterest:
+        required: false
+        displayName: LoanInterest
+        description: How much loan pre-payment is interest
+        type: number
+        format: double
+      PayrollDate:
+        required: false
+        displayName: PayrollDate
+        description: The date for the 401k transaction was obtained in payroll
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      PriorYearContrib:
+        required: false
+        displayName: PriorYearContrib
+        description: Indicates this buy was made using prior years contribution. TRUE or FALSE
+        type: boolean
+      Withholding:
+        required: false
+        displayName: Withholding
+        description: Federal tax withholding
+        type: number
+        format: double
+      TaxExempt:
+        required: false
+        displayName: TaxExempt
+        description: Tax-exempt transaction TRUE or FALSE
+        type: boolean
+      Gain:
+        required: false
+        displayName: Gain
+        description: For sales
+        type: number
+        format: double
+      StateWithholding:
+        required: false
+        displayName: StateWithholding
+        description: State tax withholding
+        type: number
+        format: double
+      Penalty:
+        required: false
+        displayName: Penalty
+        description: Indicates amount withheld due to a penalty
+        type: number
+        format: double
+      RunningBalance:
+        required: false
+        displayName: RunningBalance
+        description: Running balance of the position
+        type: number
+        format: double
+      UnitPrice:
+        required: false
+        displayName: UnitPrice
+        description: Price per commonly-quoted unit. Does not include markup/markdown, unitprice. Share price for stocks, mutual funds, and others. Percentage of par for bonds. Per share (not contract) for options.
+        type: number
+        format: double
+      Units:
+        required: false
+        displayName: Units
+        description: For security-based actions other than stock splits, quantity. Shares for stocks, mutual funds, and others. Face value for bonds. Contracts for options.
+        type: number
+        format: double
+      UnitType:
+        required: false
+        displayName: UnitType
+        description: SHARES, CURRENCY
+        type: string
+        enum:
+        - CURRENCY
+        - SHARES
+      TransactionReason:
+        required: false
+        displayName: TransactionReason
+        description: TransactionReason
+        type: string
+        enum:
+        - CALL
+        - MATURITY
+        - SELL
+  License:
+    displayName: License
+    type: object
+    properties:
+      Id:
+        required: false
+        displayName: Id
+        description: License Id
+        type: string
+      Name:
+        required: false
+        displayName: Name
+        description: License name
+        type: string
+  LoanAccount:
+    displayName: LoanAccount
+    description: Extends and inherits all fields from Account.
+    type: Account
+    properties:
+      BalanceAsOf:
+        required: true
+        displayName: BalanceAsOf
+        description: As-of date for balances
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      PrincipalBalance:
+        required: true
+        displayName: PrincipalBalance
+        description: Principal balance of loan
+        type: number
+        format: double
+      OriginalPrincipal:
+        required: true
+        displayName: OriginalPrincipal
+        description: Original principal of loan
+        type: number
+        format: double
+      LoanTerm:
+        required: true
+        displayName: LoanTerm
+        description: Term of loan in months
+        type: integer
+        format: int32
+      TotalNumberOfPayments:
+        required: true
+        displayName: TotalNumberOfPayments
+        description: Total number of payments
+        type: integer
+        format: int32
+      PaymentFrequency:
+        required: true
+        displayName: PaymentFrequency
+        description: DAILY, WEEKLY, BIWEEKLY, SEMIMONTHLY, MONTHLY, SEMIANNUALLY, ANNUALLY
+        type: string
+        enum:
+        - ANNUALLY
+        - BIWEEKLY
+        - DAILY
+        - MONTHLY
+        - SEMIANNUALLY
+        - SEMIMONTHLY
+        - WEEKLY
+      EscrowBalance:
+        required: false
+        displayName: EscrowBalance
+        description: Escrow balance of loan
+        type: number
+        format: double
+      OriginatingDate:
+        required: false
+        displayName: OriginatingDate
+        description: Loan origination date
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      NextPaymentAmount:
+        required: false
+        displayName: NextPaymentAmount
+        description: Amount of next payment
+        type: number
+        format: double
+      NextPaymentDate:
+        required: false
+        displayName: NextPaymentDate
+        description: Date of next payment
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      CompoundingPeriod:
+        required: false
+        displayName: CompoundingPeriod
+        description: DAILY, WEEKLY, BIWEEKLY, SEMIMONTHLY, MONTHLY, SEMIANNUALLY, ANNUALLY
+        type: string
+        enum:
+        - ANNUALLY
+        - BIWEEKLY
+        - DAILY
+        - MONTHLY
+        - SEMIANNUALLY
+        - SEMIMONTHLY
+        - WEEKLY
+      PayoffAmount:
+        required: false
+        displayName: PayoffAmount
+        description: Payoff amount
+        type: number
+        format: double
+      LastPaymentAmount:
+        required: false
+        displayName: LastPaymentAmount
+        description: Last payment amount
+        type: number
+        format: double
+      LastPaymentDate:
+        required: false
+        displayName: LastPaymentDate
+        description: Last payment date
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      MaturityDate:
+        required: false
+        displayName: MaturityDate
+        description: Maturity date
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      InterestPaidYearToDate:
+        required: false
+        displayName: InterestPaidYearToDate
+        description: Interest paid year to date
+        type: number
+        format: double
+      Transactions:
+        required: false
+        displayName: Transactions
+        type: array
+        items:
+          type: LoanTransaction
+  LoanTransaction:
+    displayName: LoanTransaction
+    description: Extends and inherits all fields from Transaction.
+    type: Transaction
+    properties:
+      TransactionType:
+        required: true
+        displayName: TransactionType
+        description: PAYMENT, FEE, ADJUSTMENT, INTEREST
+        type: string
+        enum:
+        - ADJUSTMENT
+        - FEE
+        - INTEREST
+        - PAYMENT
+      PaymentDetails:
+        required: false
+        displayName: PaymentDetails
+        description: Breakdown of payment details
+        type: PaymentDetails
+  PaymentDetails:
+    displayName: PaymentDetails
+    type: object
+    properties:
+      PrincipalAmount:
+        required: false
+        displayName: PrincipalAmount
+        description: The amount of payment applied to principal
+        type: number
+        format: double
+      InterestAmount:
+        required: false
+        displayName: InterestAmount
+        description: The amount of payment applied to interest
+        type: number
+        format: double
+      InsuranceAmount:
+        required: false
+        displayName: InsuranceAmount
+        description: The amount of payment applied to life/ health/accident insuranceon the loan
+        type: number
+        format: double
+      EscrowAmount:
+        required: false
+        displayName: EscrowAmount
+        description: The amount of payment applied to escrow
+        type: number
+        format: double
+      PmiAmount:
+        required: false
+        displayName: PmiAmount
+        description: The amount of payment applied to PMI
+        type: number
+        format: double
+      FeesAmount:
+        required: false
+        displayName: FeesAmount
+        description: The amount of payment applied to fees
+        type: number
+        format: double
+  LocAccount:
+    displayName: LocAccount
+    description: Line of Credit Account. Extends and inherits all fields from Account.
+    type: Account
+    properties:
+      BalanceAsOf:
+        required: true
+        displayName: BalanceAsOf
+        description: As-of date of balances
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      CreditLine:
+        required: true
+        displayName: CreditLine
+        description: Credit limit
+        type: number
+        format: double
+      AvailableCredit:
+        required: true
+        displayName: AvailableCredit
+        description: Available credit
+        type: number
+        format: double
+      NextPaymentAmount:
+        required: true
+        displayName: NextPaymentAmount
+        description: Amount of next payment
+        type: number
+        format: double
+      NextPaymentDate:
+        required: true
+        displayName: NextPaymentDate
+        description: Due date of next payment
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      PrincipalBalance:
+        required: true
+        displayName: PrincipalBalance
+        description: Principal balance
+        type: number
+        format: double
+      CurrentBalance:
+        required: true
+        displayName: CurrentBalance
+        description: Current balance LOC
+        type: number
+        format: double
+      MinimumPaymentAmount:
+        required: false
+        displayName: MinimumPaymentAmount
+        description: Minimum payment amount
+        type: number
+        format: double
+      LastPaymentAmount:
+        required: false
+        displayName: LastPaymentAmount
+        description: Last payment amount
+        type: number
+        format: double
+      LastPaymentDate:
+        required: false
+        displayName: LastPaymentDate
+        description: Last payment date
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      PointsAccrued:
+        required: false
+        displayName: PointsAccrued
+        description: Points accrued
+        type: number
+        format: double
+      CurrentRewardsBalance:
+        required: false
+        displayName: CurrentRewardsBalance
+        description: Current rewards balance
+        type: number
+        format: double
+      PointsRedeemed:
+        required: false
+        displayName: PointsRedeemed
+        description: Points redeemed
+        type: number
+        format: double
+      PurchasesApr:
+        required: false
+        displayName: PurchasesApr
+        description: Purchases APR
+        type: number
+        format: double
+      AdvancesApr:
+        required: false
+        displayName: AdvancesApr
+        description: Advances APR
+        type: number
+        format: double
+      CashAdvanceLimit:
+        required: false
+        displayName: CashAdvanceLimit
+        description: Cash advance limit
+        type: number
+        format: double
+      AvailableCash:
+        required: false
+        displayName: AvailableCash
+        description: Available cash
+        type: number
+        format: double
+      FinanceCharges:
+        required: false
+        displayName: FinanceCharges
+        description: Finance charges
+        type: number
+        format: double
+      Transactions:
+        required: false
+        displayName: Transactions
+        description: list of LocTrasaction
+        type: array
+        items:
+          type: LocTransaction
+  LocTransaction:
+    displayName: LocTransaction
+    description: A line of credit transaction. Extends and inherits all fields from Transaction.
+    type: Transaction
+    properties:
+      TransactionType:
+        required: true
+        displayName: TransactionType
+        description: CHECK, WITHDRAWAL, PAYMENT, FEE, ADJUSTMENT, INTEREST
+        type: string
+        enum:
+        - ADJUSTMENT
+        - CHECK
+        - FEE
+        - INTEREST
+        - PAYMENT
+        - WITHDRAWAL
+      CheckNumber:
+        required: false
+        displayName: CheckNumber
+        description: Check number
+        type: integer
+        format: int64
+      PaymentDetails:
+        required: false
+        displayName: PaymentDetails
+        description: Breakdown of payment details
+        type: PaymentDetails
+  Meta:
+    displayName: Meta
+    type: object
+    properties:
+      License:
+        required: false
+        displayName: License
+        description: License information
+        type: License
+  Product:
+    displayName: Product
+    description: Bank product information
+    type: object
+    properties:
+      Code:
+        required: false
+        displayName: Code
+        description: Product code
+        type: string
+      Name:
+        required: false
+        displayName: Name
+        description: Name of the product
+        type: string
+      Category:
+        required: false
+        displayName: Category
+        description: Product Category
+        type: string
+      Family:
+        required: false
+        displayName: Family
+        description: Product Family
+        type: string
+      SuperFamily:
+        required: false
+        displayName: SuperFamily
+        description: Product Super Family
+        type: string
+      MoreInfoUrl:
+        required: false
+        displayName: MoreInfoUrl
+        description: URL to obtain more information regarding product
+        type: string
+      Meta:
+        required: false
+        displayName: Meta
+        description: Meta information about product
+        type: Meta
+  Statement:
+    displayName: Statement
+    type: object
+    properties:
+      AccountId:
+        required: true
+        displayName: AccountId
+        description: Corresponds to AccountId in Account entity
+        type: string
+        maxLength: 128
+      StatementId:
+        required: true
+        displayName: StatementId
+        description: Long-term persistent identity of the statement
+        type: string
+        maxLength: 128
+      StatementDate:
+        required: true
+        displayName: StatementDate
+        description: Date of the statement
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+      Description:
+        required: false
+        displayName: Description
+        description: Description of statement
+        type: string
+  Statements:
+    displayName: Statements
+    type: object
+    properties:
+      Total:
+        required: false
+        displayName: Total
+        description: Total number of results in this collection across all pages
+        type: integer
+        format: int32
+      TotalPages:
+        required: false
+        displayName: TotalPages
+        description: Total number of pages
+        type: integer
+        format: int32
+      Page:
+        required: false
+        displayName: Page
+        description: Current page number
+        type: integer
+        format: int32
+      Statement:
+        required: false
+        displayName: Statement
+        description: Statements
+        type: array
+        items:
+          type: Statement
+  Transactions:
+    displayName: Transactions
+    type: object
+    properties:
+      Total:
+        required: false
+        displayName: Total
+        description: Total number of results in this collection across all pages
+        type: integer
+        format: int32
+      TotalPages:
+        required: false
+        displayName: TotalPages
+        description: Total number of pages
+        type: integer
+        format: int32
+      Page:
+        required: false
+        displayName: Page
+        description: Current page number
+        type: integer
+        format: int32
+      DepositTransaction:
+        required: false
+        displayName: DepositTransaction
+        description: An array of DepositTransaction
+        type: array
+        items:
+          type: DepositTransaction
+      InvestmentTransaction:
+        required: false
+        displayName: InvestmentTransaction
+        description: An array of InvestmentTransaction
+        type: array
+        items:
+          type: InvestmentTransaction
+      LoanTransaction:
+        required: false
+        displayName: LoanTransaction
+        description: An array of LoanTransaction
+        type: array
+        items:
+          type: LoanTransaction
+      LocTransaction:
+        required: false
+        displayName: LocTransaction
+        description: An array of LocTransaction
+        type: array
+        items:
+          type: LocTransaction
+  Transfer:
+    displayName: Transfer
+    type: object
+    properties:
+      TransferId:
+        required: true
+        displayName: TransferId
+        description: Client generated, long-term persistent identity of the transfer action. This ID should be maintained and returned by institution.
+        type: string
+        maxLength: 128
+      FromAccountId:
+        required: true
+        displayName: FromAccountId
+        description: Long-term persistent identity of the source account
+        type: string
+        maxLength: 128
+      ToAccountId:
+        required: true
+        displayName: ToAccountId
+        description: Long-term persistent identity of the destination account
+        type: string
+        maxLength: 128
+      Amount:
+        required: true
+        displayName: Amount
+        description: Positive amount of money to be transferred
+        type: number
+        format: double
+      Memo:
+        required: false
+        displayName: Memo
+        description: User-entered reason for transfer
+        type: string
+        maxLength: 255
+      PaymentDetails:
+        required: false
+        displayName: PaymentDetails
+        description: Payment details
+        type: PaymentDetails
+  TransferStatus:
+    displayName: TransferStatus
+    type: object
+    properties:
+      TransferId:
+        required: true
+        displayName: TransferId
+        description: Client generated, long-term persistent identity of the transfer action. This ID should be maintained and returned by institution.
+        type: string
+        maxLength: 128
+      ReferenceId:
+        required: true
+        displayName: ReferenceId
+        description: Long term persistent identifier for transfer attempt
+        type: string
+        maxLength: 128
+      Status:
+        required: true
+        displayName: Status
+        description: SUCCESS, NOFUNDS, PENDING, FAILURE
+        type: string
+        enum:
+        - FAILURE
+        - NOFUNDS
+        - PENDING
+        - SUCCESS
+      TransferDate:
+        required: true
+        displayName: TransferDate
+        description: Date of transfer attempt
+        type: string
+        pattern: '\d{4}\-\d\d\-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ'
+  AccountResponse:
+    displayName: AccountResponse
+    description: Response for an account. Only one of the properties will be returned.
+    type: object
+    properties:
+      DepositAccount:
+        required: false
+        displayName: DepositAccount
+        description: Deposit Account
+        type: DepositAccount
+      LoanAccount:
+        required: false
+        displayName: LoanAccount
+        description: Loan Account
+        type: LoanAccount
+      Locccount:
+        required: false
+        displayName: Locccount
+        description: Line of Credit Account
+        type: LocAccount
+      InvestmentAccount:
+        required: false
+        displayName: InvestmentAccount
+        description: Investment Account
+        type: InvestmentAccount
+/account:
+  post:
+    displayName: GetAccount
+    description: "*Example request for JSON *\n```\nPOST /account HTTP/1.1\nHost: example.com\nAccept: application/json\nAuthorization: Bearer w0mcJylzCn-AfvuGdqkty2-KP48=\nContent-Type: application/x-www-form-urlencoded\n  \naccountId=1357902468\n```\n  \n  \n*Example JSON response *\n```\nHTTP/1.1 200 OK\nContent-Type: application/json; charset=utf-8\n{\n  \"DepositAccount\" : {\n    \"AccountId\" : \"1357902468\",\n    \"AccountType\" : \"SAVINGS\",\n    \"DisplayName\" : \"Savings Account\",\n    \"Status\" : \"OPEN\",\n    \"Description\" : \"Savings Account\",\n    \"ParentAccountId\" : \"2468135790\",\n    \"Nickname\" : \"My Savings Account A\",\n    \"AccountNumber\" : \"4561237890\",\n    \"InterestRate\" : 3.0,\n    \"InterestRateType\" : \"FIXED\",\n    \"MicrNumber\" : \"9753108642\",\n    \"BalanceAsOf\" : \"2015-01-01Z\",\n    \"CurrentBalance\" : 1000.00,\n  }\n}\n```\n"
+    body:
+      multipart/form-data:
+        type: object
+        properties:
+          accountId:
+            required: true
+            displayName: accountId
+            description: Account identifier
+            type: string
+    responses:
+      200:
+        description: Successful response
+        body:
+          application/json:
+            displayName: response
+            description: Successful response
+            type: AccountResponse
+  /statement:
+    post:
+      displayName: GetStatement
+      description: "Gets an image of an account statement.\nCan be one of the following formats:\n  - application/pdf\n  - image/gif\n  - image/jpeg\n  - image/png\n  - image/tiff\n    \n*Example request for application/pdf *\n```\nPOST /account/statement HTTP/1.1\nHost: example.com\nAccept: application/pdf\nAuthorization: Bearer w0mcJylzCn-AfvuGdqkty2-KP48=\nContent-Type: application/x-www-form-urlencoded\n  \naccountId=1&statementId=1\n```\n  \n  \n*Example application/pdf response *\n```\nHTTP/1.1 200 OK\nContent-Type: application/pdf\n\nBinary data\n```\n"
+      body:
+        multipart/form-data:
+          type: object
+          properties:
+            accountId:
+              required: true
+              displayName: accountId
+              description: Account identifier
+              type: string
+            statementId:
+              required: true
+              displayName: statementId
+              description: Statement identifier
+              type: string
+  /statements:
+    post:
+      displayName: GetStatements
+      description: "Gets a list of statements for the given account.\n    \n*Example request for JSON *\n```\nPOST /account/statements HTTP/1.1\nHost: example.com\nAccept: application/json\nAuthorization: Bearer w0mcJylzCn-AfvuGdqkty2-KP48=\nContent-Type: application/x-www-form-urlencoded\n  \naccountId=1357902468&startTime=2015-01-01Z&endTime=2015-02-01Z&page=1\n```\n  \n  \n*Example JSON response *\n```\nHTTP/1.1 200 OK\nContent-Type: application/json; charset=utf-8\n{\n  \"Statements\" : {\n    \"Total\" : \"1\",\n    \"TotalPages\" : \"1\",\n    \"Page\" : \"1\",\n    \"Statement\" : [\n      {\n        \"AccountId\" : \"1357902468\",\n        \"StatementId\" : \"ST875376081768363584636\",\n        \"StatementDate\" : \"2015-01-01Z\",\n        \"Description\" : \"Statement for 2015-01-01\",\n      },\n      {\n        \"AccountId\" : \"1357902468\",\n        \"StatementId\" : \"ST962558772885635484949\",\n        \"StatementDate\" : \"2015-02-01Z\",\n        \"Description\" : \"Statement for 2015-02-01\",\n      }\n    ]\n  }\n}\n```\n"
+      body:
+        multipart/form-data:
+          type: object
+          properties:
+            accountId:
+              required: true
+              displayName: accountId
+              description: Account identifier
+              type: string
+            startTime:
+              required: false
+              displayName: startTime
+              description: Start time for use in retrieval; ISO 8601 date including zone indicator or combined date time including zone indicator
+              type: string
+            endTime:
+              required: false
+              displayName: endTime
+              description: End time for use in retrieval; ISO 8601 date including zone indicator or combined date time including zone indicator
+              type: string
+            page:
+              required: false
+              displayName: page
+              description: Page number (applicable only if the server has indicated that the collection is paginated)
+              type: string
+      responses:
+        200:
+          description: A list of statements
+          body:
+            application/json:
+              displayName: response
+              description: A list of statements
+              type: Statements
+  /transaction/image:
+    post:
+      displayName: GetTransactionImage
+      description: "An image of a transaction (such as a scanned check).\nCan be one of the following formats:\n  - application/pdf\n  - image/gif\n  - image/jpeg\n  - image/png\n  - image/tiff\n    \n*Example request for application/pdf *\n```\nPOST /account/transaction/image HTTP/1.1\nHost: example.com\nAccept: application/pdf\nAuthorization: Bearer w0mcJylzCn-AfvuGdqkty2-KP48=\nContent-Type: application/x-www-form-urlencoded\n  \naccountId=1&imageId=1&startTime=2015-01-01Z&endTime=2015-02-01Z\n```\n  \n  \n*Example application/pdf response *\n```\nHTTP/1.1 200 OK\nContent-Type: application/pdf\n\nBinary data\n```\n"
+      body:
+        multipart/form-data:
+          type: object
+          properties:
+            accountId:
+              required: true
+              displayName: accountId
+              description: Account identifier
+              type: string
+            imageId:
+              required: true
+              displayName: imageId
+              description: Image identifier
+              type: string
+            startTime:
+              required: false
+              displayName: startTime
+              description: Start time for use in retrieval; ISO 8601 date including zone indicator or combined date time including zone indicator
+              type: string
+            endTime:
+              required: false
+              displayName: endTime
+              description: End time for use in retrieval; ISO 8601 date including zone indicator or combined date time including zone indicator
+              type: string
+  /transactions:
+    post:
+      displayName: GetTransactions
+      description: "Gets a list of transactions for the given account.\n    \n*Example request for JSON *\n```\nPOST /account/transactions HTTP/1.1\nHost: example.com\nAccept: application/json\nAuthorization: Bearer w0mcJylzCn-AfvuGdqkty2-KP48=\nContent-Type: application/x-www-form-urlencoded\n  \naccountId=1357902468&startTime=2015-01-01Z&endTime=2015-02-01Z&page=1\n```\n  \n  \n*Example JSON response *\n```\nHTTP/1.1 200 OK\nContent-Type: application/json; charset=utf-8\n{\n  \"Transactions\" : {\n    \"Total\" : \"1\",\n    \"TotalPages\" : \"1\",\n    \"Page\" : \"1\",\n    \"DepositTransaction\" : [\n      {\n        \"AccountId\" : \"1357902468\",\n        \"TransactionId\" : \"111222333444555\",\n        \"TransactionTimestamp\" : \"2015-02-01Z\",\n        \"Description\" : \"Transfer\",\n        \"Status\" : \"POSTED\",\n        \"Amount\" : -50.00,\n        \"TransactionType\" : \"TRANSFER\",\n        \"Payee\" : \"3216540987\",\n      }\n    ]\n  }\n}\n```\n"
+      body:
+        multipart/form-data:
+          type: object
+          properties:
+            accountId:
+              required: true
+              displayName: accountId
+              description: Account identifier
+              type: string
+            startTime:
+              required: false
+              displayName: startTime
+              description: Start time for use in retrieval; ISO 8601 date including zone indicator or combined date time including zone indicator
+              type: string
+            endTime:
+              required: false
+              displayName: endTime
+              description: End time for use in retrieval; ISO 8601 date including zone indicator or combined date time including zone indicator
+              type: string
+            page:
+              required: false
+              displayName: page
+              description: Page number (applicable only if the server has indicated that the collection is paginated)
+              type: string
+      responses:
+        200:
+          description: A list of account transactions
+          body:
+            application/json:
+              displayName: response
+              description: A list of account transactions
+              type: Transactions
+/accountlist:
+  get:
+    displayName: GetAccounts
+    description: "Gets a list of accounts for the given token.\n    \n*Example request for JSON *\n```\nGET /accountlist HTTP/1.1\nHost: example.com\nAccept: application/json\nAuthorization: Bearer w0mcJylzCn-AfvuGdqkty2-KP48=\n  \n```\n  \n  \n*Example JSON response *\n```\nHTTP/1.1 200 OK\nContent-Type: application/json; charset=utf-8\n{\n  \"AccountDescriptorList\" : [\n    {\n      \"AccountId\" : \"1357902468\",\n      \"AccountType\" : \"SAVINGS\",\n      \"DisplayName\" : \"Savings Account\",\n      \"Status\" : \"OPEN\",\n      \"Description\" : \"Savings Account\",\n    },\n    {\n      \"AccountId\" : \"3216540987\",\n      \"AccountType\" : \"CHECKING\",\n      \"DisplayName\" : \"Checking Account\",\n      \"Status\" : \"OPEN\",\n      \"Description\" : \"Checking Account\",\n    }\n  ]\n}\n```\n"
+    responses:
+      200:
+        description: A list of accounts
+        body:
+          application/json:
+            displayName: response
+            description: A list of accounts
+            type: array
+            items:
+              type: AccountDescriptor
+/accountdetails:
+  get:
+    displayName: GetAccountsDetails
+    description: "Get all detailed account information for the given token.\n    \n*Example request for JSON *\n```\nGET /accountdetails HTTP/1.1\nHost: example.com\nAccept: application/json\nAuthorization: Bearer w0mcJylzCn-AfvuGdqkty2-KP48=\n  \n```\n  \n  \n*Example JSON response *\n```\nHTTP/1.1 200 OK\nContent-Type: application/json; charset=utf-8\n{\n  \"Accounts\" : {\n    \"Total\" : 1,\n    \"TotalPages\" : 1,\n    \"Page\" : 1,\n    \"Accounts\" : [\n      {\n       \"AccountId\" : \"1357902468\",\n       \"AccountType\" : \"SAVINGS\",\n       \"DisplayName\" : \"Savings Account\",\n       \"Status\" : \"OPEN\",\n       \"Description\" : \"Savings Account\",\n       \"ParentAccountId\" : \"2468135790\",\n       \"Nickname\" : \"My Savings Account A\",\n       \"AccountNumber\" : \"4561237890\",\n       \"InterestRate\" : 3.0,\n       \"InterestRateType\" : \"FIXED\",\n       \"MicrNumber\" : \"9753108642\",\n       \"BalanceAsOf\" : \"2015-01-01Z\",\n       \"CurrentBalance\" : 1000.00,\n      }\n    ]\n  }\n}\n```\n"
+    responses:
+      200:
+        description: A list of detailed accounts information
+        body:
+          application/json:
+            displayName: response
+            description: A list of detailed accounts information
+            type: Accounts
+  post:
+    displayName: GetAccountsDetailsSet
+    description: "Get all detailed account information matching the request parameters.\n    \n*Example request for JSON *\n```\nPOST /accountdetails HTTP/1.1\nHost: example.com\nAccept: application/json\nAuthorization: Bearer w0mcJylzCn-AfvuGdqkty2-KP48=\nContent-Type: application/json\n\n{\n  \"AccountsDetailsRequest\": {\n    \"singleAccountDetailsRequestList\": {\n      \"singleAccountDetailsRequest\": [{\n        \"accountId\": \"1357902468\",\n        \"startTime\": \"2015-04-01T00:00:00.000Z\"\n      }, {\n        \"accountId\": \"3216540987\",\n        \"startTime\": \"2015-05-01T00:00:00.000Z\"\n      }]\n    }\n  }\n}\n  \n```\n  \n  \n*Example JSON response *\n```\nHTTP/1.1 200 OK\nContent-Type: application/json; charset=utf-8\n{\n  \"Accounts\" : {\n    {\n     \"AccountId\" : \"1357902468\",\n     \"AccountType\" : \"SAVINGS\",\n     \"DisplayName\" : \"Savings Account\",\n     \"Status\" : \"OPEN\",\n     \"Description\" : \"Savings Account\",\n     \"ParentAccountId\" : \"2468135790\",\n     \"Nickname\" : \"My Savings Account A\",\n     \"AccountNumber\" : \"4561237890\",\n     \"InterestRate\" : 3.0,\n     \"InterestRateType\" : \"FIXED\",\n     \"MicrNumber\" : \"9753108642\",\n     \"BalanceAsOf\" : \"2015-01-01Z\",\n     \"CurrentBalance\" : 1000.00,\n    },\n    {\n     \"AccountId\" : \"3216540987\",\n     \"AccountType\" : \"CHECKIING\",\n     \"DisplayName\" : \"Checking Account\",\n     \"Status\" : \"OPEN\",\n     \"Description\" : \"Checking Account\",\n     \"ParentAccountId\" : \"2468135790\",\n     \"Nickname\" : \"My Checking Account A\",\n     \"AccountNumber\" : \"9871236450\",\n     \"InterestRate\" : 1.0,\n     \"InterestRateType\" : \"FIXED\",\n     \"MicrNumber\" : \"579018642\",\n     \"BalanceAsOf\" : \"2015-01-01Z\",\n     \"CurrentBalance\" : 2000.00,\n    }\n  }\n}\n```\n"
+    body:
+      application/json:
+        displayName: AccountsDetailsRequest
+        description: AccountDetails Request parameters
+        type: AccountsDetailsRequest
+    responses:
+      200:
+        description: A list of detailed accounts information
+        body:
+          application/json:
+            displayName: response
+            description: A list of detailed accounts information
+            type: Accounts
+/availability:
+  get:
+    displayName: GetAvailability
+    description: >2
+
+      *Example request for JSON *
+
+      ```
+
+      GET /availability HTTP/1.1
+
+      Host: example.com
+
+      Accept: application/json
+
+      Authorization: Bearer w0mcJylzCn-AfvuGdqkty2-KP48=
+
+
+      ```
+
+
+      *Example JSON response *
+
+      ```
+
+      HTTP/1.1 200 OK
+
+      Content-Type: application/json; charset=utf-8
+
+      {
+        "Availability" : {
+          "CurrentStatus" : "Operational",
+          "CurrentStatusDesc" : "All systems working with no problems",
+          "PlannedAvailability" : [
+            {
+              "Status" : "Maintenance",
+              "StatusShortDesc" : "Monthly Maintenance Downtime",
+              "StatusStartDate" : "2015-01-01T03:00:00.000Z",
+              "StatusEndDate" : "2015-01-01T04:00:00.000Z",
+            },
+            {
+              "Status" : "Maintenance",
+              "StatusShortDesc" : "Monthly Maintenance Downtime",
+              "StatusStartDate" : "2015-02-01T03:00:00.000Z",
+              "StatusEndDate" : "2015-02-01T04:00:00.000Z",
+            },
+          ],
+        }
+      }
+
+      ```
+    responses:
+      200:
+        description: API Availability
+        body:
+          application/json:
+            displayName: response
+            description: API Availability
+            type: Availability66
+/capability:
+  get:
+    displayName: GetCapability
+    description: >2
+
+      *Example request for JSON *
+
+      ```
+
+      GET /capability HTTP/1.1
+
+      Host: example.com
+
+      Accept: application/json
+
+      Authorization: Bearer w0mcJylzCn-AfvuGdqkty2-KP48=
+
+
+      ```
+
+
+      *Example JSON response *
+
+      ```
+
+      HTTP/1.1 200 OK
+
+      Content-Type: application/json; charset=utf-8
+
+      {
+        "Capability": {
+          "allowedConnections": 10,
+          "supportsCustomer": true,
+          "supportsAccounts": true,
+          "supportsTransactions": true,
+          "supportsImage": true,
+        }
+      }
+
+      ```
+    responses:
+      200:
+        description: API Capability
+        body:
+          application/json:
+            displayName: response
+            description: API Capability
+            type: Capability
+/customer:
+  get:
+    displayName: GetCustomer
+    description: >2
+
+      *Example request for JSON *
+
+      ```
+
+      GET /customer HTTP/1.1
+
+      Host: example.com
+
+      Accept: application/json
+
+      Authorization: Bearer w0mcJylzCn-AfvuGdqkty2-KP48=
+
+
+      ```
+
+
+      *Example JSON response *
+
+      ```
+
+      HTTP/1.1 200 OK
+
+      Content-Type: application/json; charset=utf-8
+
+      {
+        "Customer": {
+          "name": {
+            "first": "Michael",
+            "middle": "J",
+            "last": "Smith",
+            "company": "Acme"
+          },
+          "taxId": "144-27-7471"
+        }
+      }
+
+      ```
+    responses:
+      200:
+        description: API Capability
+        body:
+          application/json:
+            displayName: response
+            description: API Capability
+            type: Customer
+/transfer:
+  post:
+    displayName: DoTransfer
+    description: >2
+
+      *Example request for JSON *
+
+      ```
+
+      POST /transfer HTTP/1.1
+
+      Host: example.com
+
+      Accept: application/json
+
+      Authorization: Bearer w0mcJylzCn-AfvuGdqkty2-KP48=
+
+      Content-Type: application/json
+
+
+      {
+        "Transfer" : {
+          "TransferId" : "111222333444555",
+          "FromAccountId" : "1357902468",
+          "ToAccountId" : "3216540987",
+          "Amount" : 50.00,
+          "Memo" : "For Check #1234",
+        }
+      }
+
+      ```
+
+
+      *Example JSON response *
+
+      ```
+
+      HTTP/1.1 200 OK
+
+      Content-Type: application/json; charset=utf-8
+
+      {
+        "TransferStatus": {
+          "TransferId" : "111222333444555",
+          "ReferenceId" : "8453935582",
+          "Status" : "PENDING",
+          "TransferDate" : "2015-02-01Z",
+        }
+      }
+
+      ```
+    body:
+      application/json:
+        displayName: Transfer
+        description: Transfer request parameters
+        type: Transfer
+    responses:
+      200:
+        description: Transfer status
+        body:
+          application/json:
+            displayName: response
+            description: Transfer status
+            type: TransferStatus
+  /status:
+    post:
+      displayName: GetTransferStatus
+      description: >2
+
+        *Example request for JSON *
+
+        ```
+
+        POST /transfer/status HTTP/1.1
+
+        Host: example.com
+
+        Accept: application/json
+
+        Authorization: Bearer w0mcJylzCn-AfvuGdqkty2-KP48=
+
+        Content-Type: application/json
+
+
+        transferId=111222333444555
+
+        ```
+
+
+        *Example JSON response *
+
+        ```
+
+        HTTP/1.1 200 OK
+
+        Content-Type: application/json; charset=utf-8
+
+        {
+          "TransferStatus": {
+            "TransferId" : "111222333444555",
+            "ReferenceId" : "8453935582",
+            "Status" : "SUCCESS",
+            "TransferDate" : "2015-02-01Z",
+          }
+        }
+
+        ```
+      body:
+        multipart/form-data:
+          type: object
+          properties:
+            transferId:
+              required: true
+              displayName: transferId
+              description: Transfer identifier
+              type: string
+      responses:
+        200:
+          description: Transfer status
+          body:
+            application/json:
+              displayName: response
+              description: Transfer status
+              type: TransferStatus
+/products:
+  get:
+    displayName: GetProducts
+    description: >2
+
+      *Example request for JSON *
+
+      ```
+
+      GET /products HTTP/1.1
+
+      Host: example.com
+
+      Accept: application/json
+
+      ```
+
+
+      *Example JSON response *
+
+      ```
+
+      HTTP/1.1 200 OK
+
+      Content-Type: application/json; charset=utf-8
+
+      {
+        "Products": [{
+          "Code": "BPC05001161",
+          "Name": "Premiere Savings Account",
+          "Category": "Savings",
+          "Family": "Banking",
+          "SuperFamily": "Financial",
+          "MoreInfUrl": "https:example.com/products/BPC05001161",
+          "Meta": {
+              "License": {
+                "Id": "Copyright2016",
+                "Name": "Copyright"
+              }
+          }
+          }, {
+          "Code": "BCP11118372",
+          "Name": "Retirement Account",
+          "Category": "Retirement",
+          "Family": "Investing",
+          "SuperFamily": "Financial",
+          "MoreInfoUrl": "https://example.com/products/BCP11118372",
+          "Meta": {
+              "License": {
+                "Id": "Copyright2016",
+                "Name": "Copyright"
+              }
+          }
+        }]
+      }
+
+      ```
+    responses:
+      200:
+        description: Product list
+        body:
+          application/json:
+            displayName: response
+            description: Product list
+            type: array
+            items:
+              type: Product
+/atm:
+  /countries:
+    get:
+      displayName: GetAtmCountries
+      description: >
+        Gets a list of countries where ATMs are located
+
+
+        *Example request for JSON *
+
+        ```
+
+        GET /atm/countries HTTP/1.1
+
+        Host: example.com
+
+        Accept: application/json
+
+        ```
+
+
+
+        *Example JSON response *
+
+        ```
+
+        HTTP/1.1 200 OK
+
+        Content-Type: application/json; charset=utf-8
+
+        {
+         "_links": {
+              "self": { "href": "/countries" }
+         },
+         "Countries":  [
+             {
+               "Name": "Japan",
+               "Code": "JPN",
+               "Geocoding": FALSE
+             },
+             {
+               "Name": "United States of America",
+               "Code": "USA",
+               "Geocoding": TRUE
+             }
+          ]
+        }
+         ```
+      responses:
+        200:
+          description: A list of countries where ATMs are located
+          body:
+            application/json:
+              displayName: response
+              description: A list of countries where ATMs are located
+              type: Countries
+  /provinces:
+    get:
+      displayName: GetAtmSubdivision
+      description: >2
+
+        *Example request for JSON *
+
+        ```
+
+        GET /atm/provinces?country=CAN HTTP/1.1
+
+        Host: example.com
+
+        Accept: application/json
+
+        ```
+
+
+        *Example JSON response *
+
+        ```
+
+        HTTP/1.1 200 OK
+
+        Content-Type: application/json; charset=utf-8
+
+        {
+          "CountrySubdivisions":  [
+            {
+              "Name": "ALBERTA",
+              "Code": "AB"
+             },
+            {
+              "Name": "BRITISH COLUMBIA",
+              "Code": "BC"
+            }
+          ]
+        }
+
+        ```
+      queryParameters:
+        country:
+          required: true
+          displayName: country
+          description: ISO 3166 Country Code
+          type: string
+      responses:
+        200:
+          description: list of country subdivisions
+          body:
+            application/json:
+              displayName: response
+              description: list of country subdivisions
+              type: CountrySubdivisions
+  /locations:
+    get:
+      displayName: GetAtmLocations
+      description: >2
+
+        *Example request for JSON *
+
+        ```
+
+        GET /atm/locations?postalcode=90028&PageOffset=0&PageLength=10 HTTP/1.1
+
+        Host: example.com
+
+        Accept: application/json
+
+        ```
+
+
+        *Example JSON response *
+
+        ```
+
+        HTTP/1.1 200 OK
+
+        Content-Type: application/json; charset=utf-8
+
+        {
+          "Atms": {
+            "PageOffset": "0",
+            "TotalCount": 2,
+            "Atm": [
+              {
+                "Location": {
+                  "Name": "ATM Location 1",
+                  "Distance": 0.9320591049747101,
+                  "DistanceUnit": "MILE",
+                  "Address": {
+                    "Line1": "4201 Sunset Blvd",
+                    "Line2": "",
+                    "City": "Hollywood",
+                    "PostalCode": "90028",
+                    "CountrySubdivision": {
+                      "Name": "California",
+                      "Code": "CA"
+                    },
+                    "Country": {
+                      "Name": "United States of America",
+                      "Code": "USA"
+                    }
+                  },
+                  "Point": {
+                    "Latitude": 38.76006576913497,
+                    "Longitude": -90.74615107952418
+                  },
+                  "LocationType": {
+                    "Type": "OTHER"
+                  }
+                },
+                "HandicapAccessible": "NO",
+                "Camera": "YES",
+                "Availability": "BUSINESS_HOURS",
+                "AccessFees": "NO_FEE",
+                "Owner": "SandBox Bank",
+                "SharedDeposit": "NO",
+                "SurchargeFreeAlliance": "NO",
+                "SurchargeFreeAllianceNetwork": "DOES_NOT_PARTICIPATE_IN_SFA",
+                "SupportEMV": 1,
+                "InternationalMaestroAccepted": 1
+              },
+              {
+                "Location": {
+                  "Name": "ATM Location 2",
+                  "Distance": 0.6251489709262,
+                  "DistanceUnit": "MILE",
+                  "Address": {
+                    "Line1": "8733 Franklin Ave",
+                    "Line2": "",
+                    "City": "Hollywood",
+                    "PostalCode": "90028",
+                    "CountrySubdivision": {
+                      "Name": "California",
+                      "Code": "CA"
+                    },
+                    "Country": {
+                      "Name": "United States of America",
+                      "Code": "USA"
+                    }
+                  },
+                  "Point": {
+                    "Latitude": 29.107398165363,
+                    "Longitude": -93.87558096265883
+                  },
+                  "LocationType": {
+                    "Type": "OTHER"
+                  }
+                },
+                "HandicapAccessible": "YES",
+                "Camera": "YES",
+                "Availability": "BUSINESS_HOURS",
+                "AccessFees": "NO_FEE",
+                "Owner": "Sandbox Bank",
+                "SharedDeposit": "NO",
+                "SurchargeFreeAlliance": "NO",
+                "SurchargeFreeAllianceNetwork": "DOES_NOT_PARTICIPATE_IN_SFA",
+                "SupportEMV": 1,
+                "InternationalMaestroAccepted": 1
+              }
+            ]
+          }
+        }
+
+
+        ```
+      queryParameters:
+        PageOffset:
+          required: true
+          displayName: PageOffset
+          description: Zero-based offset where the response will start. The actual start position is this value +1. An offset of 10 starts at item 11. Combined with the PageLength option this allows pagination to be supported through the service requests.
+          type: number
+          format: double
+        PageLength:
+          required: true
+          displayName: PageLength
+          description: Maximum number of items to retrieve within the current "page" of results.
+          type: number
+          format: double
+        AddressLine1:
+          required: false
+          displayName: AddressLine1
+          description: Line 1 of the street address for the merchant location. Usually includes the street number and name. This parameter is ignored if latitude and longitude are provided. If you provide this parameter you must also provide the Country parameter and either City parameter or PostalCode parameter.
+          type: string
+        AddressLine2:
+          required: false
+          displayName: AddressLine2
+          description: Line 2 of the street address usually an apartment number or suite number. This parameter is used rarely and is ignored if latitude and longitude are provided. If you provide this parameter you must also provide the Country parameter and either City parameter or PostalCode parameter.
+          type: string
+        City:
+          required: false
+          displayName: City
+          description: The name of the city for a merchant location. This parameter is ignored if latitude and longitude are provided. If you provide this parameter you must also provide the Country parameter.
+          type: string
+        CountrySubdivision:
+          required: false
+          displayName: CountrySubdivision
+          description: The state or province for a merchant location (only supported for US and Canada locations). This parameter is ignored if latitude and longitude are provided. If you provide this parameter you must also provide the Country parameter.
+          type: string
+        PostalCode:
+          required: false
+          displayName: PostalCode
+          description: The zip code or postal code for a merchant location. This parameter is ignored if latitude and longitude are provided. If you provide this parameter you must also provide the Country parameter.
+          type: string
+        Country:
+          required: false
+          displayName: Country
+          description: Any three digit country code for an ATM location. Valid values are Three digit alpha country code as defined in ISO 3166-1. This parameter is ignored if latitude and longitude are provided. This parameter is required if any other address information is provided including AddressLine1 AddressLine2 City PostalCode or CountrySubdivision.
+          type: string
+        Latitude:
+          required: false
+          displayName: Latitude
+          description: The latitude of a merchant location. If latitude is provided longitude must also be provided
+          type: number
+          format: double
+        Longitude:
+          required: false
+          displayName: Longitude
+          description: The longitude of a merchant location. If longitude is provided latitude must also be provided.
+          type: number
+          format: double
+        DistanceUnit:
+          required: false
+          displayName: DistanceUnit
+          description: Indicates the unit for the radius as well as the units of the distance of each location from the basepoint in the response.
+          type: string
+        Radius:
+          required: false
+          displayName: Radius
+          description: This is the radius from the search point in the distance unit you set. For example if you want to search for locations within 50 miles of a certain point you would set DistanceUnit=mile and Radius=50. This parameter is ignored in non-geocoded countries.
+          type: number
+          format: double
+        SupportEMV:
+          required: false
+          displayName: SupportEMV
+          description: This indicates whether the ATM should have the ability to read chip cards or not. Can be 0 or 1
+          type: number
+          format: double
+        InternationalMaestroAccepted:
+          required: false
+          displayName: InternationalMaestroAccepted
+          description: This field will provide ATM Terminals which can still process Maestro transactions but are not yet EMV chip reader enabled. Information available only for USA and Argentina till October 2014.
+          type: string
+      responses:
+        200:
+          description: Transfer status
+          body:
+            application/json:
+              displayName: response
+              description: Transfer status
+              type: ATMS
