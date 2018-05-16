@@ -1,0 +1,94 @@
+#%RAML 1.0
+title: update Customer api for financial service 
+version: v1
+#protocols: [ HTTPS ] 
+baseUri: https://mocksvc.mulesoft.com/mocks/165c04cc-c716-4f0c-9a8b-0fceeec8489c/api/{version}/ # baseUri: https://mocksvc.mulesoft.com/mocks/cf1c7fa4-2976-4cf5-93c6-8a936433dc11/api/{version}/ # baseUri: https://mocksvc.mulesoft.com/mocks/8b48b27f-11c8-418c-bc57-abcdcff384a5/api/{version}/   #baseUri: https://durable/api/{version}/
+mediaType: application/json
+
+types:  
+
+  TelephoneNumber:
+    displayName: TelephoneNumber
+    description: Telephone number
+    type: object
+    properties:
+      Number:
+        required: true
+        displayName: Number
+        description: Telephone number
+        type: string
+        maxLength: 64
+      Type:
+        required: false
+        displayName: Type
+        description: Telephone type (HOME, BUSINESS, CELL, FAX)
+        type: string
+        enum:
+        - BUSINESS
+        - CELL
+        - FAX
+        - HOME
+      Country:
+        required: false
+        displayName: Country
+        description: Country calling codes defined by ITU-T recommendations E.91 and E.164
+        type: string
+        maxLength: 3            
+  Customer:    
+    type: object
+    properties:
+      customerId:
+        required: true
+        type: integer
+      emailId:
+        required: true
+        type: array
+        items:
+          type: string
+          minLength: 2
+          maxLength: 6
+          #pattern: ^note\d+$  
+        minItems: 1
+        uniqueItems: true        
+      telephoneNo:
+        required: true
+        type: array
+        items:
+          type: TelephoneNumber
+  Error:
+    properties:
+      code: integer
+      message: string        
+
+/customer:
+#/{customerId}/emailId/{emailId}/telephoneNo/{telephoneNo}#/telephonetype/{telephonetype}/country/{country}:   
+  put:
+    body :  
+        #application/json :      
+        type: Customer          
+    description: provide customer id, email ids, telephone nos, telephonetype, countrycode  
+    responses:
+        200:
+          body:
+            application/json:
+              type: Customer 
+              example: { "customerId": 1 ,                                                                   "emailId": ["a@t.co"],
+                         "telephoneNo":[{"Number":"9988775566","Type":"CELL",                              "Country":"91"}]
+                       }
+
+     
+                         
+        404:
+          body:
+            application/json:
+              type: Error
+              example: {  "message" : "customer data update has been failed",                                "code" : 1001 
+                       }                    
+
+  
+
+
+
+
+
+
