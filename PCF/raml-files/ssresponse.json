@@ -5,13 +5,6 @@
 	"stockType": "COMMON",
 	"Yield": 232,
 	"YieldAsOfDate": "06-02-2018"
-	},
-
- "sweepSecurity ": {
-	"currentBalance ": 343,
-	"availableBalance ": 443,
-	"balanceAsOf": "06-02-2018",
-	"checks": true
-}
+	}
 
 }]
