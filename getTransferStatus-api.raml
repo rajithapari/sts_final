@@ -1,0 +1,36 @@
+#%RAML 1.0
+title: Design Get status of a transfer between accounts
+baseUri: https://mocksvc.mulesoft.com/mocks/88f187a7-8ca3-473d-bb8b-4e63844761df/TransferStatus/api # baseUri: https://mocksvc.mulesoft.com/mocks/23919185-f558-4c31-944f-99c57ddc37a2/TransferStatus/api # baseUri: https://mocksvc.mulesoft.com/mocks/23919185-f558-4c31-944f-99c57ddc37a2/TransferStatus/api # baseUri: https://mocksvc.mulesoft.com/mocks/23919185-f558-4c31-944f-99c57ddc37a2/TransferStatus/api # baseUri: https://mocksvc.mulesoft.com/mocks/efd0ad2e-d083-47da-9f84-a29cae23af01/TransferStatus/api # baseUri: https://adorsys.de/TransferStatus/api
+version: v1
+mediaType: application/json
+types: 
+  getTransferStatus:
+   properties: 
+     transferId: integer
+     status: string
+     dateAndTime: datetime
+  Error:
+   properties: 
+     code: integer
+     message: string
+
+/getTransferStatus:
+  description: "Get status of a transfer between accounts."
+  /{transferId}:
+    uriParameters:
+      transferId:
+        type: integer
+    get:
+      description: "Return the Transfer Status with given transfer Id."
+      responses:
+        200:
+          body:
+
+            example: 
+            
+             { "transferId": 1, "status":"Pyment Successful", "dateAndTime": "14-05-2018 13:24:30"}
+            
+        404:
+          body:
+              type: Error
+              example: { "message" : "Not found", "code" : 1001 }
