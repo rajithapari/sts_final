@@ -1,0 +1,93 @@
+#%RAML 1.0
+title: Transfer_Amount
+version: v1
+protocols: [ HTTPS ] 
+baseUri: https://mocksvc.mulesoft.com/mocks/1c83c7a5-dbce-431b-85b7-a5542e5f17d6/api/{version} # baseUri: http://customer.transferamount.com/api/{version}
+mediaType: application/json
+securitySchemes:
+  basicAuth:
+    description: Each request must contain the headers necessary for
+                 basic authentication
+    type: Basic Authentication
+    describedBy:
+      headers:
+        Authorization:
+          description: Used to send the Base64-encoded "username:password"
+                       credentials
+          type: string
+      responses:
+        401:
+          description: |
+            Unauthorized. Either the provided username and password
+            combination is invalid, or the user is not allowed to access
+            the content provided by the requested URL.
+types:
+  Transfer_Entity:
+    properties:
+     FromAccountId :
+      required: true 
+      type: string
+      minLength: 12
+      maxLength: 16
+     ToAccountId :
+      required: true 
+      type: string
+      minLength: 12
+      maxLength: 16
+     Amount:
+      required: true 
+      type: integer
+      minimum: 1
+     TransferId: 
+      required: true 
+      type: string
+     Memo?: 
+      required: false 
+      type: string
+      maxLength: 255
+     PaymentDetails?: 
+      required: false
+      type: string
+  Response:
+    properties:
+     TransferDate:
+      required: true 
+      type: string
+     ReferenceId:
+      required: true 
+      type: string
+     TransferId:
+      required: true 
+      type: string
+     Status: 
+      enum: [SUCCESS,NOFUNDS,PENDING,FAILURE]
+      
+  Error:
+    properties:
+      code: integer
+      message: string
+      Status: string
+/Transfer_Entity:
+  post:
+    description: Transfer amount
+    body:
+      application/json:
+        type: Transfer_Entity
+        example: {
+          "TransferId" : "111222333444555",
+          "FromAccountId" : "13579024685452",
+          "ToAccountId" : "32165409873452",
+          "Amount" : 500,
+          "Memo?" : "For Check #1234",
+      }
+    responses:
+      201:
+        body:
+          application/json:
+            type: Response
+            example: {
+          "TransferId" : "111222333444555",
+          "ReferenceId" : "8453935582",
+          "Status" : "SUCCESS",
+          "TransferDate" : "2018-05-14",
+      }
