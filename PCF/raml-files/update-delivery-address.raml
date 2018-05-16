@@ -1,0 +1,73 @@
+#%RAML 1.0
+title: update-delvery-address
+version: v1
+baseUri: https://mocksvc.mulesoft.com/mocks/610ab040-c41d-406d-99be-a0ba868b0ea8/api/{version} # baseUri: https://mocksvc.mulesoft.com/mocks/0ebb61ea-3f4a-41e2-8296-678c335e1a3b/api/{version} # baseUri: https://mocksvc.mulesoft.com/mocks/0ebb61ea-3f4a-41e2-8296-678c335e1a3b/api/{version} 
+mediaType: application/json
+
+securitySchemes: 
+  securitySchemes:
+    type: OAuth 2.0
+    description: |
+      Dropbox supports OAuth 2.0 for authenticating all API requests.    
+    describedBy:
+      queryParameters:
+        headers:              
+        access_token:
+          description: |
+             Used to send a valid OAuth 2 access token. Do not use with the "Authorization" header.
+          type: string
+      responses:
+        401:
+          description: |
+              Bad or expired token. This can happen if the user or Dropbox
+              revoked or expired an access token. To fix, re-authenticate
+              the user.
+
+types:
+  #Customer:
+  #  properties:
+  #    id: integer                          
+  Error:
+    properties: 
+      code: integer
+      message: string
+
+/customer:
+/update-address:
+  put:
+    description: Change the Delivery address of the customer.   
+    body:      
+    #queryParameters:
+      application/json:      
+       properties:      
+          id: 
+            description: "The customer Id of which address need to be modified"    
+            required: true
+            type: integer
+            minimum: 1
+
+          addressType:            
+            description: "Taking one of the address type to meae it as delivey address"
+            type: string
+            enum: ["Home","Business","Mailing"]
+            required: true        
+
+    responses:
+      200:      
+        body:        
+          application/json:  
+            type: object          
+            example: |              
+              {"code":200,"message":"Delivery Address Has been changed"}
+      204: 
+        body: 
+          application/json:
+            type: Error          
+            example: |
+              {"code":204,"message":"No content  found"}
+      404:
+        body: 
+          application/json:
+            type: Error
+            example: |
+              {"code":404,"message":"Page Not Found"}
