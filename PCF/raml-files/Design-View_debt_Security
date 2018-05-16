@@ -1,0 +1,47 @@
+#%RAML 1.0 
+title: debtsecurity
+version: v1
+protocols: [HTTPS]
+baseUri: https://mocksvc.mulesoft.com/mocks/039b8787-6129-4fd7-94a0-d1b40e51f497 # baseUri: https://api.example.com
+mediaType: application/json
+
+types:
+  DebtSecurity :
+    type: object
+    properties:
+      ParValue: integer
+      DebtType: 
+          enum: [COUPON, ZERO]
+      DebtClass: string
+      CouponRate: integer
+      CouponDate: datetime
+      CouponMatureFrequency: 
+        enum: [MONTHLY,QUARTERLY, SEMIANNUAL, ANNUAL, or OTHER]
+      CallPrice: integer
+      YieldToCall: integer
+      CallDate: datetime
+      CallType: 
+        enum: [CALL, PUT, PREFUND, MATURITY]
+      YieldToMaturity: integer
+
+  Holding:
+    properties:
+      HoldingId: string
+      SecurityType: DebtSecurity
+       
+/debtsecuritydetails:
+   /{HoldingId}:
+     get:
+       description: If the user has debtsecurity type then this method displays debt security details using holdingId else tech-diff page is displayed
+       responses:
+         200:
+          body:
+           application/json:
+             example: !include application.json
+
+          
+      
+           
+
+
+    
