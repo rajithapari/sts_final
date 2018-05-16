@@ -1,0 +1,60 @@
+#%RAML 1.0
+title: transferlist
+
+version: v1 
+protocols: [ HTTPS ] 
+baseUri: https://localhost/8080/mytransactionlist/{amount}
+mediaType: application/json 
+securitySchemes: 
+  basicAuth: 
+    description: Each request must contain the headers necessary for 
+                 basic authentication 
+    type: Basic Authentication 
+    describedBy: 
+      headers: 
+        Authorization: 
+          description: Used to send the Base64-encoded "username:password"credentials 
+          type: string 
+      responses: 
+        401: 
+          description: | 
+            Unauthorized. Either the provided username and password 
+            combination is invalid, or the user is not allowed to access 
+            the content provided by the requested URL. 
+            
+types: 
+  Transaction: 
+    properties: 
+      amount: integer
+      AccountId: integer
+      TransactionId: integer
+      status: string  
+      
+      
+  Error: 
+    properties: 
+      code: integer 
+      message: string 
+      
+/amount: 
+  get: 
+    description: List all transaction  matching amount criteria if given else will list all transaction list based on the amount 
+    queryParameters: 
+      amount?: integer
+       
+    responses: 
+      200: 
+        body: 
+          application/json: 
+           example:    
+            [
+
+            {"AccountId":64889289,"TransactionId":8978,"amount":2000, status: "success"},
+                          
+            {"AccountId":64889209,"TransactionId":8978,"amount":2009, status: "success"},
+                          
+            {"AccountId":6488929989,"TransactionId":8978,"amount":1000, status: "success"}
+              ]
+      404: 
+          description: "Transfer list for given input amount  not found"
+  
