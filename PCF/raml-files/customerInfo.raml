@@ -2,28 +2,28 @@
 title: Get information about the customer
 version: v1
 protocols: [ HTTPS ]
-baseUri: https://mocksvc.mulesoft.com/mocks/73427de7-d14f-4a74-8059-21db6b7a89b1/api/{version} # baseUri: https://mocksvc.mulesoft.com/mocks/73427de7-d14f-4a74-8059-21db6b7a89b1/api/{version}
+baseUri: https://mocksvc.mulesoft.com/mocks/75ba6e78-efea-4785-9c27-ab400af34221/api/{version} # baseUri: https://mocksvc.mulesoft.com/mocks/73427de7-d14f-4a74-8059-21db6b7a89b1/api/{version}
 # baseUri: http://company.domain.com/api/{version}
 mediaType: application/json
 types:
     Iso3166CountryCode:
-     type: string
-     enum: 
-     - AD
-     - AE
-     - AF
-     - AG
-     - AI
-     - AL
-     - AM
-     - AN
+      type: string
+      enum: 
+      - AD
+      - AE
+      - AF
+      - AG
+      - AI
+      - AL
+      - AM
+      - AN
 
     DeliveryAddressType:    
-     type: string
-     enum: 
-     - HOME
-     - BUSINESS
-     - MAILING
+      type: string
+      enum: 
+      - HOME
+      - BUSINESS
+      - MAILING
 
     TelephoneNumberType:
       type: string
@@ -35,134 +35,139 @@ types:
 
     DeliveryAddress:
       properties: 
-        Type: DeliveryAddressType
+        Type:
+          type: DeliveryAddressType
         Line1: 
-         type: string
-         maxLength: 64
-         required: true
+          type: string
+          maxLength: 64
+          required: true
         Line2: 
-         type: string
-         maxLength: 64
+          type: string
+          maxLength: 64
         Line3: 
-         type: string
-         maxLength: 64
+          type: string
+          maxLength: 64
         City: 
-         type: string
-         maxLength: 64
-         required: true
+          type: string
+          maxLength: 64
+          required: true
         State: 
-         type: string
-         maxLength: 20
-         required: true
+          type: string
+          maxLength: 20
+          required: true
         Zip: 
-         type: string
-         maxLength: 9
-         required: true
-        Country: Iso3166CountryCode
-      
+          type: string
+          maxLength: 9
+          required: true
+        Country: Iso3166CountryCode      
 
     name:
       properties: 
-        Prefix: string
-    First: 
-     type: string
-     required: true
-    middle: string
-    last:
-     type: string
-     required: true
-    Suffix: string
-    Company: string
+        Prefix: 
+          type: string
+        First: 
+          type: string
+          required: true
+        Middle: 
+          type: string
+        Last:
+          type: string
+          required: true
+        Suffix: 
+          type: string
+        Company: 
+          type: string
         
-    
-
     Telephone: 
       properties:         
-    Type: TelephoneNumberType
-    Country: 
-     type: string
-     maxLength: 3     
-    Number: 
-     type: string
-     maxLength: 10 
-     required: true
-     pattern: "[0-9|-]+"
+        Type: TelephoneNumberType
+        Country: 
+          type: string
+          maxLength: 3     
+        Number: 
+          type: string
+          maxLength: 10 
+          required: true
+          pattern: "[0-9|-]+"
+
     Customer:
       properties:         
-    CustomerId:
-     type: integer
-     required: true
-    Name: 
-     type: name
-     required: true
-    DateOfBirth: datetime
-    TaxId: string
-    GovernmentId: string
-    Email:
-      type: array
-      items: 
-        type: string
-        minLength: 2
-        maxLength: 10
-      minItems: 1
-      uniqueItems: true
-    Addresses: DeliveryAddress[]
-    Telephones: Telephone[]
-
+        CustomerId:
+          type: integer
+          required: true
+        Name: name     
+        DateOfBirth: date-only
+        TaxId: string
+        GovernmentId: string
+        Email:
+          type: array
+          items: 
+            type: string
+            minLength: 2
+        Addresses: DeliveryAddress[]
+        Telephones: Telephone[]
+  
            
-/customer/{CustomerId}:
-  get:
-      description: Get a Customer information by given id
+/Customer/{CustomerId}:
+  get:      
+      description: Get a Customer information by given id       
       responses:
         200:
-          body:
+          body:  
             application/json:
-             example: {"CustomerId":10,
-             "Name " : {
-                        "Prefix" : "Mr.",
-                        "first" : "Shrey",
-                        "middle" : "J",
-                        "last" : "Rozisky",
-                        "Suffix" : "Jr.",
-                        "company" : "Acme"},
-          
-            "DateOfBirth" : "10/10/1990", 
-            "TaxId" : "sAAA11",
-            "GovernmentId" : "bhkk678",
-            "Email" : "michael11@gmail.com",
-            "Addresses" : [{
-                            "Type": "HOME",
-                            "Line1": "Adhd",
-                            "Line2": "mbdcksad",
-                            "Line3": "hdl",
-                            "City": "Pune",
-                            "State": "MH"  ,                                                     "Zip": "42333",
-                            "Country": "India"
-                           },
-                           {
-                            "Type": "Buiness",
-                            "Line1": "Adhd",
-                            "Line2": "mbdcksad",
-                            "Line3": "hdl",
-                            "City": "elhi",
-                            "State": "MH"  ,                                                     "Zip": "011323",
-                            "Country": "India"
-                           }
-                          ] ,
-            "Telephones " : [{
-                              "Type": "HOME", 
-                              "Country": "hf",
-                              "Number": "65789340"
-                             },
-                             {
-                              "Type": "Business", 
-                              "Country": "fgh",
-                              "Number": "76548568"
-                             }
-                            ]                     
+              type: Customer
+              example: { 
+                  "CustomerId": 1,
+                  "Name": { 
+                    "Prefix": "Mr", 
+                    "First": "Shrey", 
+                    "Middle": "J",
+                    "Last": "Rozisky",
+                    "Suffix": "Jr",
+                    "Company": "Acme"
+                  },                                
+                  "DateOfBirth": "1990-01-08", 
+                  "TaxId": "sAAA11",
+                  "GovernmentId": "bhkk678",
+                  "Email": ["michael11@gmail.com"],
+                  "Addresses": [{
+                                  "Type": "HOME",
+                                  "Line1": "Adhd",
+                                  "Line2": "mbdcksad",
+                                  "Line3": "hdl",
+                                  "City": "Pune",
+                                  "State": "MH"  ,            
+                                  "Zip": "42333",
+                                  "Country": "AD"
+                                },
+                                {
+                                    "Type": "BUSINESS",
+                                    "Line1": "Adhd",
+                                    "Line2": "mbdcksad",
+                                    "Line3": "hdl",
+                                    "City": "elhi",
+                                    "State": "MH"  ,                                                                  
+                                    "Zip": "011323",
+                                    "Country": "AD"
+                                }
+                              ],
+                  "Telephones": [{
+                                    "Type": "HOME", 
+                                    "Country": "HF",
+                                    "Number": "65789340"
+                                 },
+                                 {
+                                    "Type": "BUSINESS", 
+                                    "Country": "FG",
+                                    "Number": "76548568"
+                                 }
+                                ]             
             
-             }
+                }       
         404:
           body:              
-              example: { "message" : "Not found", "code" : 1001 }            
-
+            example: { "message" : "Not found", "code" : 1001 }            
+  
+  
+   
+ 
