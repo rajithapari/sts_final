@@ -1,0 +1,13 @@
+{
+"ParValue" : 12,
+"DebtType" : "COUPON",
+"DebtClass": "TREASURY",
+"CouponRate":122,
+"CouponDate": "2018-07-04T21:00:00",
+"CouponMatureFrequency":"QUARTERLY",
+"CallPrice":1234,
+"YieldToCall":1234,
+"CallDate": "2018-07-24T21:00:00",
+"CallType":"CALL",
+"YieldToMaturity":123456
+}
