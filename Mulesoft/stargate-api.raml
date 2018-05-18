@@ -1,0 +1,365 @@
+#%RAML 1.0
+baseUri: https://mocksvc.mulesoft.com/mocks/0cd3ff12-1d16-4ba3-9116-637fc0341796 # 
+
+title: Stargate Api example
+version: v1
+mediaType:  application/json
+types:
+  Identifier: 
+    type: string
+    maxLength: 128
+  Error:
+    type: object
+    properties: 
+      Code: string
+      Message?: string
+  
+  fiAttributes:
+        type: object
+        required: false 
+        properties:
+          name: string
+          value: string
+  currency:
+    type: object
+    properties: 
+      CurrencyRate: number
+      CurrencyCode: CurrencyCode
+      OriginalCurrencyCode: CurrencyCode
+  
+  CurrencyCode:
+    enum: [EUR,GEL,GHS,GIP,GMD,GNF,GTQ,GYD,HKD,HRK,HTG,HUF,IDR,ILS,INR]
+  Accounts:
+    type: object
+    properties:  
+      Total: integer
+      TotalPages: integer
+      Page: integer
+  AccountDescriptor:
+    type: object
+    properties: 
+      AccountId: Identifier
+      Error: Error
+      AccountType:
+        enum: [DEPOSIT_ACCOUNT, LOAN_ACCOUNT, LOC_ACCOUNT, INVENSTMENT_ACCOUNT]
+      DisplayName: string
+      Status:
+        enum: [OPEN, CLOSED, PENDINGOPEN, PENDINGCLOSE, DELINQUENT,
+              PAID, NEGATIVECURRENTBALANCE]
+      Description: string
+
+  Account:
+    type: AccountDescriptor
+    properties: 
+      Nickname: string
+      Currency: currency
+      AccountNumber: string
+      InterestRate: number
+
+  DepositAccount:
+    type: Account
+    properties: 
+      BalanceAsOf: datetime
+      CurrentBalance: number
+      AvailableBalance: number
+      Transactions: DepositTransaction[]
+
+  LoanAccount:
+    type: Account
+    properties: 
+      BalanceAsOf: datetime
+      PrincipalBalance: number
+      OriginalPrincipal: number
+      LoanTerm: integer
+      TotalNumberOfPayments: integer
+      PaymentFrequency:
+        enum: [DAILY, WEEKLY, BIWEEKLY, SEMIMONTHLY, MONTHLY,SEMIANNUALLY, ANNUALLY] 
+      Transactions: LoanTransaction[]
+
+  LocAccount:
+    type: Account
+    properties: 
+      BalanceAsOf: datetime
+      CreditLine: number
+      AvailableCredit: number
+      NextPaymentAmount: number
+      NextPaymentDate: datetime
+      PrincipalBalance: number
+      CurrentBalance: number
+      Transactions: LocTransaction[]
+
+  Transaction:
+    type: object
+    properties: 
+      AccountId: Identifier
+      TransactionId: Identifier
+      TransactionTimestamp: datetime
+      Description: string
+      ImageIds: string[]
+      Status: 
+        enum: [PENDING, MEMO, POSTED, AUTHORIZATION]
+      Amount: number
+  DepositTransaction:
+    type: Transaction
+    properties: 
+      TransactionType:
+        enum: [CHECK, WITHDRAWAL, TRANSFER, POSDEBIT,ATMWITHDRAWAL, BILLPAYMENT, FEE,                  DEPOSIT, ADJUSTMENT,INTEREST, DIVIDEND, DIRECTDEPOSIT, ATMDEPOSIT, POSCREDIT]
+      Payee: string
+      CheckNumber: integer
+  InvestmentTransaction:
+    type: Transaction
+    properties: 
+      TransactionType:
+        enum: [PURCHASED, SOLD, PURCHASEDTOCOVERADJUSTMENT,PURCHASETOOPEN,PURCHASETOCLOSE,              SOLDTOOPEN,SOLDTOCLOSE, INTEREST, REINVESTOFINCOME, RETURNOFCAPITAL,                      TRANSFER,OTHER, DIV, SRVCHG, DEP, ATM, POS, XFER, CHECK, PAYMENT,CASH,                    DIRECTDEP, DIRECTDEBIT, REPEATPMT]
+      Shares: number
+      Price: number
+  LoanTransaction:
+    type: Transaction
+    properties: 
+      TransactionType:
+        enum: [PAYMENT, FEE, ADJUSTMENT, INTEREST]
+      PaymentDetails: PaymentDetails
+  LocTransaction:
+    type: Transaction
+    properties: 
+      "TransactionType":
+        enum: [CHECK, WITHDRAWAL, PAYMENT, FEE, ADJUSTMENT, INTEREST]
+      CheckNumber: integer
+      PaymentDetails: PaymentDetails
+  PaymentDetails:
+    type: object
+    properties: 
+      PrincipalAmount: number
+      InterestAmount: number 
+      InsuranceAmount: number
+      EscrowAmount: number
+      PmiAmount: number
+      FeesAmount: number
+  InvestmentAccount:
+    type: Account
+    properties:
+      balanceAsOf: datetime
+      allowedCheckWriting: boolean
+      allowedOptionTrade: boolean
+      currentValue: string
+      holdings: Holding[]
+      availableCashBalance: number
+      margin: boolean
+      marginBalance: number
+      shortBalance: number
+      brokerId: string
+      planId: string
+      rolloverAmount: number
+      employerName: string
+      balanceList: InvestmentBalance[]
+  Holding:
+    type: object
+    properties: 
+      holdingType: string
+  InvestmentBalance:
+    type: object
+    required: false
+    properties: 
+      balanceName: string
+      balanceDescription: string
+      balanceType: InvestmentBalanceType
+      balanceValue: number
+      balanceDate: string
+      currency: string
+  InvestmentBalanceType:
+    type:
+    enum: [AMOUNT, PERCENTAGE]
+
+  Statement:
+    type: object
+    properties: 
+      AccountId: integer
+      StatementId: integer
+      StatementDate: date-only
+      Description: string
+  Statements:
+    type: object
+    properties:
+      Total: integer
+      TotalPages: integer
+      Page: integer
+      Statement: Statement[]
+
+  AccountUser:
+    type: object
+    properties: 
+      AccountId: integer
+      Password: string
+
+  BenificaryDeatils:
+    type: Account
+    properties: 
+      BeneficaryName: string
+      conformBeneficaryName: string
+
+/investmentBalance:
+   get:
+    queryParameters: 
+      parentAccountId:
+        type: string
+        example: 2343345s44
+      accountType:
+        type: string
+        example: Invest Account
+    responses:
+        200:
+           body:
+             application/json:
+              type: InvestmentAccount
+
+/account/statements:
+  displayName: Statement Details
+  get:
+    description: return all statements
+    queryParameters: 
+      account_Id:
+        type: number
+        example: 251452
+      startTime: 
+        type: string
+        example: Tue 01-01-2009 6:00
+      endTime: 
+        type: string
+        example: Tue 01-05-2009 6:00  
+    responses: 
+      200:
+        body: 
+          application/json:
+            type: Statements[]   
+
+/createloanaccount:
+  displayName: creating loan account
+  post:
+    description: creating loan account 
+    body: 
+      application/json:
+            type: LoanAccount   
+    responses: 
+      200:
+        body: 
+          application/json:
+            example:
+              message: loan account created successfully
+
+/accountsdetails:
+  displayName: Account Information
+  get:
+    queryParameters: 
+      "AccountId":
+        type: integer
+        example: 251452
+    responses: 
+      200:
+        body: 
+          application/json:
+            type: Accounts[]
+
+/account/statement:
+  displayName: Account Information
+  get:
+    description: Get an account statement
+    queryParameters: 
+      AccountId:
+        type: integer
+        example: 251452
+      StatementId:
+       type: integer
+       example: 251451
+    responses: 
+      200:
+        body: 
+          binary/octet-stream:   
+            type: string
+
+/addbeneficiarydetails:
+  displayName: Account Information
+  post:
+    description: save beneficiary details
+    responses: 
+      200:
+        body: 
+          application/json:
+            type: BenificaryDeatils[]
+
+
+/changeaccountspassword:
+  displayName: Account Information
+  put:
+    description: change account password
+    queryParameters: 
+      AccountId:
+        type: integer
+        example: 251784
+    responses: 
+      200:
+        body: 
+          application/json:
+            type: AccountUser[]
+
+/account/transactions:
+  displayName: Transactions Details
+  get:
+    description: return all transactions
+    queryParameters: 
+      account_Id:
+        type: number
+        example: 251452
+      startTime: 
+        type: string
+        example: Tue 01-01-2009 6:00
+      endTime: 
+        type: string
+        example: Tue 01-05-2009 6:00  
+      page:
+        type: number
+        example: 2
+    responses: 
+      200:
+        body: 
+          application/json:
+            type: Transaction[]
+
+/account:
+  post:
+    description: Get Account details
+    body: 
+      application/x-www-form-urlencoded:
+        type: object
+        example: 
+            "AccountId" : "46547987"
+    responses: 
+      201:
+        body: 
+          application/json:
+            type: Account
+            properties: 
+              "DEPOSIT": DepositAccount
+              "INVEST": InvestmentAccount
+              "LOAN": LoanAccount
+              "LOC": LocAccount	
+/accounts/tranctions/image:
+ post:
+    description: to display transaction image
+    queryParameters: 
+      accountId:
+        required: true
+        type: string
+      imageId:
+        required: true
+        type: string
+      startTime:
+        required: false
+        type:   datetime-only
+      endTime: 
+        required: false
+        type: datetime-only
+    responses: 
+    body: 
+          binary/octet-stream:   
+            type: string   
+        
