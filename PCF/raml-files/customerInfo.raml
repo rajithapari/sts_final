@@ -5,7 +5,30 @@ protocols: [ HTTPS ]
 baseUri: https://mocksvc.mulesoft.com/mocks/75ba6e78-efea-4785-9c27-ab400af34221/api/{version} # baseUri: https://mocksvc.mulesoft.com/mocks/73427de7-d14f-4a74-8059-21db6b7a89b1/api/{version}
 # baseUri: http://company.domain.com/api/{version}
 mediaType: application/json
+securitySchemes:
+  basicAuth:
+    description: Each request must contain the headers necessary for
+                 basic authentication
+    type: Basic Authentication
+    describedBy:
+      headers:
+        Authorization:
+          description: Used to send the Base64-encoded "username:password"
+                       credentials
+          type: string
+      responses:
+        401:
+          description: |
+            Unauthorized. Either the provided username and password
+            combination is invalid, or the user is not allowed to access
+            the content provided by the requested URL.
+
 types:
+    Error:
+      properties: 
+        code: integer
+        message: string
+
     Iso3166CountryCode:
       type: string
       enum: 
@@ -165,8 +188,13 @@ types:
             
                 }       
         404:
-          body:              
-            example: { "message" : "Not found", "code" : 1001 }            
+          body: 
+             application/json:
+               type: Error
+               example: |
+                 {"code":404,"message":"Page Not Found"} 
+
+                     
   
   
    
