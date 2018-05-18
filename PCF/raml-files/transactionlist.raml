@@ -1,60 +1,61 @@
 #%RAML 1.0
+baseUri: https://mocksvc.mulesoft.com/mocks/f2a738c6-60aa-4387-9db2-c394783bd176 # baseUri: https://mocksvc.mulesoft.com/mocks/45b16ec5-62b6-424d-b5da-61a547d4c895 # 
+
 title: transferlist
 
 version: v1 
 protocols: [ HTTPS ] 
-baseUri: https://mocksvc.mulesoft.com/mocks/51b4ccdd-f379-4328-a7fa-ad903d05c105/8080/mytransactionlist/{amount} # baseUri: https://mocksvc.mulesoft.com/mocks/51b4ccdd-f379-4328-a7fa-ad903d05c105/8080/mytransactionlist/{amount}
+
 mediaType: application/json 
-securitySchemes: 
-  basicAuth: 
-    description: Each request must contain the headers necessary for 
-                 basic authentication 
-    type: Basic Authentication 
-    describedBy: 
-      headers: 
-        Authorization: 
-          description: Used to send the Base64-encoded "username:password"credentials 
-          type: string 
-      responses: 
-        401: 
-          description: | 
-            Unauthorized. Either the provided username and password 
-            combination is invalid, or the user is not allowed to access 
-            the content provided by the requested URL. 
-            
+
 types: 
-  Transaction: 
+  TransferEntity: 
     properties: 
+      TransactionId: string
+      FromAccountId: string
+      ToAccountId: string
       amount: integer
-      AccountId: integer
-      TransactionId: integer
-      status: string  
       
-      
-  Error: 
-    properties: 
-      code: integer 
-      message: string 
-      
-/amount: 
+  
+/gettransferlist:     
   get: 
-    description: List all transaction  matching amount criteria if given else will list all transaction list based on the amount 
+    description: List of all transaction  matching FromAccountId,ToAccountId,amount criteria
     queryParameters: 
-      amount?: integer
-       
+
+     amount:
+         required: true
+         type: string
+         pattern: ^[0-9a-zA-Z]$
+        
+
+     ToAccountId:
+         required: true
+         type: string
+         pattern: ^[0-9a-zA-Z]$
+
+     FromAccountId:
+         required: true
+         type: string
+         pattern: ^[0-9a-zA-Z]$
+
+      
+         
     responses: 
       200: 
         body: 
           application/json: 
-           example:    
+         
+           example:
             [
 
-            {"AccountId":64889289,"TransactionId":8978,"amount":2000, status: "success"},
+              
+
+            {"TransferId":64889289,"FromAccountId":8978789,"ToAccountId" :7347897, "amount":2000},
                           
-            {"AccountId":64889209,"TransactionId":8978,"amount":2009, status: "success"},
+            {"TransferId":64889289,"FromAccountId":8978789,"ToAccountId" :7347897,"amount":2009},
                           
-            {"AccountId":6488929989,"TransactionId":8978,"amount":1000, status: "success"}
+            {"TransferId":64889289,"FromAccountId":8978789,"ToAccountId" :7347897,"amount":1000}
               ]
       404: 
-          description: "Transfer list for given input amount  not found"
+          description: "Transfer list for given input parameters  not found"
   
