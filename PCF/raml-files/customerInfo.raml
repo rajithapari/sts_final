@@ -2,26 +2,31 @@
 title: Get information about the customer
 version: v1
 protocols: [ HTTPS ]
-baseUri: https://mocksvc.mulesoft.com/mocks/75ba6e78-efea-4785-9c27-ab400af34221/api/{version} # baseUri: https://mocksvc.mulesoft.com/mocks/73427de7-d14f-4a74-8059-21db6b7a89b1/api/{version}
-# baseUri: http://company.domain.com/api/{version}
+baseUri: https://mocksvc.mulesoft.com/mocks/6a3fc288-4976-4b08-a528-06813aa599c0/api/{version} # baseUri: https://mocksvc.mulesoft.com/mocks/6a3fc288-4976-4b08-a528-06813aa599c0/api/{version} 
 mediaType: application/json
 securitySchemes:
-  basicAuth:
-    description: Each request must contain the headers necessary for
-                 basic authentication
-    type: Basic Authentication
+   oauth_2_0:
+    description: This API supports OAuth 2.0 for authenticating all API requests.
+    type: OAuth 2.0
     describedBy:
       headers:
         Authorization:
-          description: Used to send the Base64-encoded "username:password"
-                       credentials
+          description: Used to send a valid OAuth 2 access token. Do not use with                         the "access_token" query
           type: string
-      responses:
+        queryParameters:
+        access_token:
+            description: |
+              Used to send a valid OAuth 2 access token. Do not use together with                the "Authorization"
+              header
+            type: string
+        responses:
         401:
           description: |
-            Unauthorized. Either the provided username and password
-            combination is invalid, or the user is not allowed to access
-            the content provided by the requested URL.
+              Bad or expired token. This can happen if the user or the API revoked               or expired an
+              access token. To fix, you should re-authenticate the user.
+        403:
+          description: |
+              Bad OAuth request (wrong consumer key, bad nonce,  expired                         timestamp...). Unfortunately, re-authenticating the user won't help                here.
 
 types:
     Error:
@@ -58,56 +63,56 @@ types:
 
     DeliveryAddress:
       properties: 
-        Type:
+        type:
           type: DeliveryAddressType
-        Line1: 
+        line1: 
           type: string
           maxLength: 64
           required: true
-        Line2: 
+        line2: 
           type: string
           maxLength: 64
-        Line3: 
+        line3: 
           type: string
           maxLength: 64
-        City: 
+        city: 
           type: string
           maxLength: 64
           required: true
-        State: 
+        state: 
           type: string
           maxLength: 20
           required: true
-        Zip: 
+        zip: 
           type: string
           maxLength: 9
           required: true
-        Country: Iso3166CountryCode      
+        country: Iso3166CountryCode      
 
     name:
       properties: 
-        Prefix: 
+        prefix: 
           type: string
-        First: 
-          type: string
-          required: true
-        Middle: 
-          type: string
-        Last:
+        first: 
           type: string
           required: true
-        Suffix: 
+        middle: 
           type: string
-        Company: 
+        last:
+          type: string
+          required: true
+        suffix: 
+          type: string
+        company: 
           type: string
         
     Telephone: 
       properties:         
-        Type: TelephoneNumberType
-        Country: 
+        type: TelephoneNumberType
+        country: 
           type: string
           maxLength: 3     
-        Number: 
+        number: 
           type: string
           maxLength: 10 
           required: true
@@ -115,86 +120,95 @@ types:
 
     Customer:
       properties:         
-        CustomerId:
-          type: integer
+        customerId:
+          type: string
           required: true
-        Name: name     
-        DateOfBirth: date-only
-        TaxId: string
-        GovernmentId: string
-        Email:
-          type: array
+          maxLength: 128
+        name: name     
+        dateOfBirth:
+          type: date-only
+          example: 2015-05-23
+        taxId: string
+        
+        governmentId: string
+        email:
+          type: array          
           items: 
             type: string
-            minLength: 2
-        Addresses: DeliveryAddress[]
-        Telephones: Telephone[]
-  
+            minLength: 2  
+            maxLength: 20         
+            
+        addresses: DeliveryAddress[]
+        telephones: Telephone[]  
            
-/Customer/{CustomerId}:
-  get:      
-      description: Get a Customer information by given id       
-      responses:
+/Customer/{customerId}:
+  get: 
+    description: Get Customer information by given id     
+    responses:
         200:
           body:  
             application/json:
               type: Customer
               example: { 
-                  "CustomerId": 1,
-                  "Name": { 
-                    "Prefix": "Mr", 
-                    "First": "Shrey", 
-                    "Middle": "J",
-                    "Last": "Rozisky",
-                    "Suffix": "Jr",
-                    "Company": "Acme"
+                  "customerId": "100",
+                  "name": { 
+                    "prefix": "Mr", 
+                    "first": "Shrey", 
+                    "middle": "J",
+                    "last": "Rozisky",
+                    "suffix": "Jr",
+                    "company": "Acme"
                   },                                
-                  "DateOfBirth": "1990-01-08", 
-                  "TaxId": "sAAA11",
-                  "GovernmentId": "bhkk678",
-                  "Email": ["michael11@gmail.com"],
-                  "Addresses": [{
-                                  "Type": "HOME",
-                                  "Line1": "Adhd",
-                                  "Line2": "mbdcksad",
-                                  "Line3": "hdl",
-                                  "City": "Pune",
-                                  "State": "MH"  ,            
-                                  "Zip": "42333",
-                                  "Country": "AD"
+                  "dateOfBirth": "1990-01-08", 
+                  "taxId": "sAAA11",
+                  "governmentId": "bhkk678",
+                  "email": ["michael11@gmail.com"],
+                  "addresses": [{
+                                  "type": "HOME",
+                                  "line1": "Adhd",
+                                  "line2": "mbdcksad",
+                                  "line3": "hdl",
+                                  "city": "Pune",
+                                  "state": "MH"  ,            
+                                  "zip": "42333",
+                                  "country": "AD"
                                 },
                                 {
-                                    "Type": "BUSINESS",
-                                    "Line1": "Adhd",
-                                    "Line2": "mbdcksad",
-                                    "Line3": "hdl",
-                                    "City": "elhi",
-                                    "State": "MH"  ,                                                                  
-                                    "Zip": "011323",
-                                    "Country": "AD"
+                                    "type": "BUSINESS",
+                                    "line1": "Adhd",
+                                    "line2": "mbdcksad",
+                                    "line3": "hdl",
+                                    "city": "elhi",
+                                    "state": "MH"  ,                                                                  
+                                    "zip": "011323",
+                                    "country": "AD"
                                 }
                               ],
-                  "Telephones": [{
-                                    "Type": "HOME", 
-                                    "Country": "HF",
-                                    "Number": "65789340"
+                  "telephones": [{
+                                    "type": "HOME", 
+                                    "country": "HF",
+                                    "number": "65789340"
                                  },
                                  {
-                                    "Type": "BUSINESS", 
-                                    "Country": "FG",
-                                    "Number": "76548568"
+                                    "type": "BUSINESS", 
+                                    "country": "FG",
+                                    "number": "76548568"
                                  }
-                                ]             
-            
+                                ]          
                 }       
         404:
           body: 
              application/json:
                type: Error
                example: |
-                 {"code":404,"message":"Page Not Found"} 
-
-                     
+                 {"code":404,"message":"Not Found"} 
+        500:
+          body: 
+             application/json:
+               type: Error
+               example: |
+                 {"code":404,"message":"Internal Server Error"}
+          
   
   
    
