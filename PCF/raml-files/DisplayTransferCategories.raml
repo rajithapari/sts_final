@@ -1,0 +1,124 @@
+#%RAML 1.0
+title: TransferStatus
+version: v1
+baseUri: https://mocksvc.mulesoft.com/mocks/558e70c5-fdd6-49a5-9b95-caf36c05c106/{version}/transferStatus 
+mediaType: application/json
+securitySchemes: 
+  oauth_2_0:
+    description: This API supports OAuth 2.0 for authenticating all API requests
+    type: OAuth 2.0
+    describedBy: 
+      headers: 
+        Authorization:
+          description: Used to send a valid OAuth 2 access token. Do not use with the "access_token" query
+          type: string
+      queryParameters:
+        access_token: 
+         description: Used to send a valid OAuth 2                  access token. Do not use together with the              "Authorization"
+          header
+         
+      responses: 
+        401:
+          description: 
+           Bad or expired token. This can happen if the                    user or the API revoked or expired an
+            access token. To fix, you should                          re-authenticate the user.
+        403:
+          description: Bad OAuth request (wrong consumer key, bad nonce, expired timestamp...). Unfortunately, re-authenticating the user won't help here.      
+ 
+types:  
+  TransferStatus:
+    properties: 
+      TransferId:
+        type: string
+        maxLength: 128
+      ReferenceId:
+        type: string
+        maxLength: 128
+      Status: TransferStatusStatus
+      TransferDate: 
+        type: datetime
+        description:    
+  TransferStatusStatus:
+    description: this is the status of all transfer
+    displayName: TransferStatus    
+    type: string
+    enum:
+    - SUCCESS
+    - NOFUNDS
+    - PENDING
+    - FAILURE
+  Transfer:
+    properties: 
+      TransferId:
+        type: string
+        maxLength: 128
+      FromAccountId: string
+      ToAccountId: string
+      Amount: integer
+      Memo: string
+      PaymentDetails: string
+  ServerError:
+    properties: 
+      code:
+        type: integer
+        required: true
+      message:
+        type: string
+        required: true
+  Error:
+    properties: 
+      code:
+        type: integer
+        required: true
+      message:
+        type: string
+        required: true
+
+/transfer:
+  get:
+    description:  i want to view transfer categorized by status of transfer
+    queryParameters: 
+      transferStatus:
+        description: "Get transfer categorized by status of transfer possible values are 'SUCCESS','PENDING','FAILURE','NOFUNDS"
+        required: true
+        type: TransferStatusStatus
+    
+    responses:
+      404:
+        body:
+          type: Error
+          example: {"message": "Data Not found", "code": 1002} 
+      500:
+        body: 
+          type: ServerError
+          example: {"message":"internal server error", "code":1003}
+
+
+      200:
+        body:
+          application/json:
+            type: Transfer[]
+            example: [
+              {"TransferId":"123", 
+              "FromAccountId":"123", 
+              "ToAccountId": "123", 
+              "Amount":1000,
+              "Memo": "Loan", 
+              "PaymentDetails": "Interest"}
+            ,
+             {
+               "TransferId":"124", 
+                "FromAccountId":"1234", 
+                "ToAccountId": "12376",
+                "Amount":1500,
+                "Memo": "business", 
+                "PaymentDetails": "withdrawal"}, 
+            
+            {
+              "TransferId":"125", 
+              "FromAccountId":"1235", 
+              "ToAccountId": "112543", 
+              "Amount":15000, 
+              "Memo": "financial", 
+              "PaymentDetails": "cheque"}
+            ]
