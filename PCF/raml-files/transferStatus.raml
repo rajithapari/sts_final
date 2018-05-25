@@ -1,0 +1,116 @@
+#%RAML 1.0
+title: Design Get status of a transfer between accounts
+version: v1
+baseUri: https://mocksvc.mulesoft.com/mocks/57e0d8d7-6ac3-44d4-a099-3a737c951369/api/{version} # baseUri: https://mocksvc.mulesoft.com/mocks/57e0d8d7-6ac3-44d4-a099-3a737c951369/api/{version} 
+mediaType: application/json
+securitySchemes:
+   oauth_2_0:
+    description: This API supports OAuth 2.0 for authenticating all API requests.
+    type: OAuth 2.0
+    describedBy:
+      headers:
+        Authorization:
+          description: Used to send a valid OAuth 2 access token. Do not use with the "access_token" query
+          type: string
+        queryParameters:
+        access_token:
+            description: |
+              Used to send a valid OAuth 2 access token. Do not use together with the "Authorization"
+              header
+            type: string
+        responses:
+        401:
+          description: |
+              Bad or expired token. This can happen if the user or the API revoked or expired an
+              access token. To fix, you should re-authenticate the user.
+        403:
+          description: |
+              Bad OAuth request (wrong consumer key, bad nonce,  expired timestamp...). Unfortunately, re-authenticating the user won't help here.
+            
+types:
+
+  transferStatus:
+    properties:
+      transferId: 
+       type: integer
+       maximum: 128
+       required: true
+      
+      referenceId:
+       type: integer
+       maximum: 128
+       required: true
+
+      status: 
+       type: string
+       required: true
+       enum: [SUCCESS, NOFUNDS, PENDING, FAILURE]
+          
+      transferDate: 
+       type: datetime
+       required: true
+       example: 2016-02-28T16:41:41.090Z
+       format: rfc3339 # the default, so no need to specify
+       
+  Error:
+    properties:
+      code: integer
+      message: string
+      
+/transferStatus:
+  post:
+    description: Create status of a transfer between accounts
+    body:
+      application/json:
+        type: transferStatus
+        example: 
+         {
+          "transferId":1,
+          "referenceId":2, 
+          "status":"SUCCESS",
+          "transferDate": 2018-05-23T10:49:04+05:30
+          }
+       
+    responses:
+      201:
+        body:
+          application/json:
+            type: transferStatus
+            example: 
+             {
+           
+              "transferId":1,
+              "referenceId":2, 
+              "status":"SUCCESS",
+            "transferDate": 2018-05-23T10:49:04+05:30
+             }  
+           
+  /{transferId}:
+    uriParameters:
+      transferId:
+        type: integer
+        maximum: 128
+        required: true
+        
+    get:
+      description: Get status of a transfer between accounts by transferId
+      responses:
+        200:
+          body:
+            application/json:
+              type: transferStatus
+              example:  
+                {
+              "transferId":1,
+              "referenceId":2, 
+              "status":"SUCCESS",                                  "transferDate":2018-05-23T10:49:04+05:30
+                }
+        404:
+          body:
+              type: Error
+              example: { "message" : "Not found", "code" : 1001 }
+        500:
+          body:
+              type: Error
+              example: { "message" : "Internal server error ", "code" : 500 }      
+               
