@@ -1,0 +1,63 @@
+#%RAML 1.0
+baseUri: https://mocksvc.mulesoft.com/mocks/f2a738c6-60aa-4387-9db2-c394783bd176 # baseUri: https://mocksvc.mulesoft.com/mocks/45b16ec5-62b6-424d-b5da-61a547d4c895 # 
+
+title: transferlist
+
+version: v1 
+protocols: [ HTTPS ] 
+
+mediaType: application/json 
+
+types: 
+  TransferEntity: 
+    properties: 
+      TransactionId: string
+      FromAccountId: string
+      ToAccountId: string
+      amount: integer
+  
+
+      
+  
+/gettransferlist:     
+  get: 
+    description: List all transaction  matching amount criteria if given else will list all transaction list based on the amount 
+    queryParameters: 
+
+     
+        
+
+     ToAccountId:
+         required: true
+         
+
+     FromAccountId:
+         required: true
+         type: string
+         
+     amount:
+         required: true
+         type: integer
+         
+
+      
+         
+    responses: 
+      200: 
+        body: 
+          application/json: 
+         
+           example:
+            [
+
+              
+
+            {"TransferId":64889289,"FromAccountId":8978789,"ToAccountId" :7347897, "amount":2000},
+                          
+            {"TransferId":64889289,"FromAccountId":8978789,"ToAccountId" :7347897,"amount":2009},
+                          
+            {"TransferId":64889289,"FromAccountId":8978789,"ToAccountId" :7347897,"amount":1000}
+              ]
+      404: 
+          description: "Transfer list for given input parameters  not found"
+  
