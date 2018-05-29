@@ -1,0 +1,71 @@
+#%RAML 1.0 
+title: debtsecurity
+version: v1
+protocols: [HTTPS]
+baseUri: https://mocksvc.mulesoft.com/mocks/3f088b6d-0341-49c8-87b5-cf017b438251 # baseUri: https://api.example.com
+mediaType: application/json
+
+types:
+  DebtSecurity :
+    type: object
+    properties:
+      ParValue: integer
+      DebtType: 
+          enum: [COUPON, ZERO]
+      DebtClass: 
+        enum: [CORPORATE,MUNICIPAL,OTHER,TREASURY]
+      CouponRate: integer
+      CouponDate: datetime
+      CouponMatureFrequency: 
+        enum: [MONTHLY,QUARTERLY, SEMIANNUAL, ANNUAL, or OTHER]
+      CallPrice: integer
+      YieldToCall: integer
+      CallDate: datetime
+      CallType: 
+        enum: [CALL, PUT, PREFUND, MATURITY]
+      YieldToMaturity: integer
+
+       
+/debtsecuritydetails/{holdingId}:
+     uriParameters: 
+       holdingId:
+        type: string
+        pattern: ^[0-9]$
+        maxLength: 128
+        required: true
+     get:
+       queryParameters: 
+        securityType: 
+         enum: [STOCK, MUTUALFUND, DEBT, OPTION, SWEEP, OTHER] 
+         example: DEBT
+         required: true
+       description: If the user has debtsecurity type then this method displays debt security details using holdingId else tech-diff page is displayed
+       responses:
+         200:
+          body:
+           application/json:
+             example: 
+              {
+                "ParValue" : 12,
+                "DebtType" : "COUPON",
+                "DebtClass": "TREASURY",
+                "CouponRate": 122,
+                "CouponDate": "2018-07-04T21:00:00",
+                "CouponMatureFrequency": "QUARTERLY",
+                "CallPrice": 1234,
+                "YieldToCall": 1234,
+                "CallDate": "2018-07-24T21:00:00",
+                "CallType": "CALL",
+                "YieldToMaturity": 123456
+            }
+
+         404:
+          description: When the page is not found
+
+
+          
+      
+           
+
+
+    
