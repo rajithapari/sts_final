@@ -1,0 +1,290 @@
+{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Calibri;}{\f1\fnil\fcharset128 NotoSerif;}}
+{\colortbl ;\red255\green0\blue0;\red0\green77\blue187;\red51\green51\blue51;\red66\green140\blue203;\red0\green176\blue80;}
+{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sa200\sl276\slmult1\lang9\b\f0\fs36\par
+\pard\sa200\sl276\slmult1\qc\ul REQUIREMENT ANALYSIS DOCUMENT\ulnone\b0\fs22\par
+\pard\sa200\sl276\slmult1\ul\b\fs28 1.User Story : Create an api to get an account\par
+\ulnone\fs24 Request\b0\fs20\par
+POST /account \par
+Accept: application/json\par
+Authorization: Bearer w0mcJylzCn-AfvuGdqkty2-KP48=\par
+Content-Type: application/x-www-form-urlencoded\par
+accountId=1357902468\par
+\par
+\b\fs24 Response\b0\fs20\par
+HTTP/1.1 200 OK\par
+Content-Type: application/json; charset=utf-8\par
+\{\par
+\~\~"DepositAccount" : \{ \}\par
+\}\par
+\b Response type: DepositAccount, LoanAccount, LocAccount, or InvestmentAccount\par
+\fs24 Task\fs20 :\b0\par
+1. Requirement Analysis \endash  Identify the Request and Response data\par
+2. Create Raml to get Account information\par
+3. Create Spring boot App to get Account\par
+a. Retrieve Data from DB table\par
+b. Push Data to the Queue before exposing Data through API\par
+c. Retrieve data from soap endpoint and expose as Rest API\par
+4.Create Mulesoft App to get Account\par
+a. Retrieve Data from DB table\par
+b. Push Data to the Queue before exposing Data through API\par
+c. Retrieve data from soap endpoint and expose as Rest API\par
+5.Handle exceptions,logging  and other Non Functional Requirements(Security) as requested\par
+\ul\fs28\par
+\b 2.Entities and related Entities\ulnone\b0\fs22\par
+-\b AccountDescriptorEntity \b0\par
+\tab -\b AccountEntity\b0 (\cf1 PK-AccountId\cf0 ) --> Uses \cf2\b CurrencyEntity\cf0\b0\par
+\tab\tab -\b DepositAccountEntity \b0 --> Uses \cf2\b DepositTransactionEntity\cf0\b0\par
+\tab\tab -\b LoanAccountEntity \b0 --> Uses \cf2\b LoanTransactionEntity-->\cf0\b0 Uses \tab\tab\tab\tab\tab   \cf2\b PaymentDetailsEntity\cf0\b0\par
+\tab\tab -\b LocAccountEntity \b0 --> Uses \cf2\b LocTransactionEntity\cf0\b0\par
+\tab\tab -\b InvestmentAccountEntity \b0 --> Uses \cf2\b HoldingEntity \b0 , \b OpenOrderEntity,\b0\tab\tab\tab\tab   \b ContributionEntity , VestingEntity ,InvestmentBalance,\tab\tab\tab\tab\tab   InvestmentTransaction ,InvestmentLoan \b0\par
+\cf0\fs28 -\b\fs24 ErrorEntity\b0\fs28\par
+\ul\b 3.Entity feilds and their datatypes taken in consideration \ulnone\par
+\fs22 -AccountDescriptorEntity\par
+\tab -\b0 AccountId:\i  Identifier (\fs16 String with length 128\fs20 )\i0\fs22\par
+\tab -AccountType:\i  String[\fs16 LOAN,DEPOSIT,INVESTMENT,LOC\fs22 ]\par
+\i0\tab -DisplayName: \i String\i0\par
+\pard\tab -Status: \i String[\cf3\fs16 CLOSED\lang1033 ,\lang9 DELINQUENT\lang1033 ,\lang9 NEGATIVECURRENTBALANCE\lang1033 ,\lang9 OPEN\lang1033 ,\lang9 PAID\lang1033 ,\lang9 PENDINGCLOSE\lang1033 ,\lang9 PENDINGOPEN\cf0\fs22 ]\par
+\b\par
+\i0 -AccountEntity\par
+\b0\par
+\tab -ParentAccountId:\i  Identifier(\fs16 String with length 128\fs20 )\fs16\par
+\fs22\par
+\i0\tab -Nickname: \i String\i0\par
+\par
+\tab -Currency:\b\i CurrencyEntity\i0  \b0\tab\par
+\par
+\tab -AccountNumber: \i String\par
+\par
+\tab\i0 -InterestRate: \i Number (\fs16 decimal \fs22 )\i0\par
+\i\par
+\i0\tab -BalanceType: \i String[\fs16 ASSET,LIABILITY\fs22 ]\par
+\i0\par
+\cf2\tab -\b CurrencyEntity\par
+\par
+\cf0\b0\tab\tab -CurrencyRate:\i  Number (\fs16 decimal \fs22 )\i0\par
+\par
+\tab\tab -CurrencyCode: \i ISO4217Code\i0\par
+\par
+\tab\tab -OrignalCurrencyCode: \i ISO4217Code\par
+\par
+\b -\i0 DepositAccountEntity\par
+\tab\par
+\tab -\b0 BalanceAsOf: \i Timestamp\i0\fs20\par
+\par
+\fs22\tab -CurrentBalance: \i Number\i0\par
+\par
+\tab -OpeningDayBalance: \i Number\i0\par
+\tab\par
+\tab -AvailableBalance: \i Number\i0\tab\par
+\par
+\tab -AnnualPercentageYield: \i Number\i0\tab\par
+\par
+\tab -InterestYtd: \i Number\i0\par
+\par
+\tab -Term:\i  Int\i0\par
+\tab\par
+\tab -MaturityDate: \i Timestamp\i0\par
+\tab\par
+\tab -Transactions: \i Array of \b DepositTransactionEntity\par
+\pard\sa200\sl276\slmult1\par
+\cf2\i0\tab -DepositTransactionEntity\cf0\i\par
+\pard\i0\tab\tab -\b0 TransactionType\b : \b0\i DepositTransactionType \i0 [\i\fs16 CHECK, WITHDRAWAL, TRANSFER, POSDEBIT ,\tab\tab\tab ATMWITHDRAWAL ,  BILLPAYMENT, FEE, DEPOSIT, ADJUSTMENT,INTEREST, DIVIDEND, DIRECTDEPOSIT, \tab\tab\tab ATMDEPOSIT,POSCREDIT\i0\fs22 ]\par
+\par
+\b\tab\tab -\b0 Payee\b : \b0\i String255 \par
+\i0\par
+\pard\sa200\sl276\slmult1\b\tab\tab -\b0 CheckNumber\b : \b0\i Int\b\par
+-\i0 LoanAccountEntity\par
+\pard\tab\b0 -BalanceAsOf: : \i Timestamp\i0\par
+\tab\par
+\tab -PrincipalBalance: \i Number\i0\par
+\par
+\tab -EscrowBalance: \i Number\i0\par
+\par
+\tab -OriginalPrincipal: \i Number\i0\par
+\tab\par
+\tab -OriginatingDate: \i Timestamp\i0\par
+\par
+\tab -LoanTerm\i : Int\i0\par
+\par
+\tab -TotalNumberOfPayments: \i Int\i0\par
+\tab\par
+\tab -NextPaymentAmount: \i Number\i0\par
+\tab\par
+\tab -NextPaymentDate: \i Timestamp\i0\par
+\par
+\tab -PaymentFrequency:  \i PaymentFrequency[\fs16 DAILY, WEEKLY, BIWEEKLY, SEMIMONTHLY, \tab MONTHLY,SEMIANNUALLY, ANNUALLY\fs22 ]\par
+\par
+\i0\tab -CompoundingPeriod:  \i CompoundingPeriod [\fs16 DAILY, WEEKLY, BIWEEKLY, SEMIMONTHLY, \tab MONTHLY,SEMIANNUALLY, ANNUALLY\fs22 ]\par
+\i0\par
+\tab -PayoffAmount: \i Number\i0\par
+\par
+\tab -LastPaymentAmount: \i Number\i0\par
+\par
+\tab -LastPaymentDate: \i Timestamp\i0\par
+\par
+\tab -MaturityDate: \i Timestamp\i0\par
+\tab\par
+\tab -InterestPaidYearToDate: \i Number\i0\par
+\par
+\tab -Transactions: A\i rray of \b LoanTransactionEntity\par
+\par
+\par
+\tab -\cf2\i0 LoanTransactionEntity\par
+\tab\tab\par
+\tab\tab -\cf0\b0 TransactionType: \i LoanTransactionType[\cf3\i0\f1\fs16 PAYMENT, FEE, ADJUSTMENT, INTEREST\cf0\i\f0\fs22 ]\i0\par
+\par
+\tab\tab -PaymentDetails: \b\i PaymentDetails\cf2\i0\par
+\cf0\b0\par
+\par
+\b\i -\i0 LocAccountEntity\par
+\b0\par
+\tab -BalanceAsOf: \i Timestamp\par
+\i0\par
+\tab -CreditLine: \i Number\i0\par
+\par
+\tab -AvailableCredit: \i Number\i0\par
+\par
+\tab -NextPaymentAmount: \i Number\i0\par
+\par
+\tab -NextPaymentDate: \i Timestamp\i0\par
+\par
+\tab -PrincipalBalance: \i Number\i0\par
+\par
+\tab -CurrentBalance: \i Number\i0\par
+\par
+\tab -MinimumPaymentAmount: \i Number\i0\par
+\par
+\tab -LastPaymentAmount: \i Number\par
+\i0\par
+\tab -LastPaymentDate: \i Timestamp\i0\par
+\par
+\tab -PointsAccrued: \i Number\par
+\i0\par
+\tab -CurrentRewardsBalance: \i Number\par
+\i0\par
+\tab -PointsRedeemed: \i Number\par
+\i0\par
+\tab -PurchasesApr: \i Number\par
+\i0\par
+\tab -AdvancesApr: \i Number\par
+\i0\par
+\tab -CashAdvanceLimit: \i Number\i0\par
+\par
+\tab -AvailableCash: \i Number\par
+\i0\par
+\tab -FinanceCharges: \i Number\par
+\i0\par
+\tab -Transactions: \i Array of \b LocTransactionEntity\par
+\par
+-\i0 InvestmentAccountEntity \par
+\par
+\tab -\b0 BalanceAsOf: \i Timestamp\par
+\i0\par
+\b\tab -\b0 AllowedCheckWriting\b : \b0\i Boolean \i0\par
+\b\tab\par
+\tab -\b0 AllowedOptionTrade\b : \b0\i Boolean \i0\par
+\b\tab\par
+\tab -\b0 CurrentValue\b :\b0\i  Number\b\i0\par
+\tab\tab\par
+\tab -\b0 Holdings\b :\i  \b0 Array of \b HoldingEntity\b0\par
+\par
+\b\i0\tab -\b0 OpenOrders\b : \b0\i Array of \b OpenOrderEntity\b0\i0\par
+\b\tab\par
+\tab -\b0 Contribution\b :\i  \b0 Array of \b ContributionEntity\b0\i0\par
+\par
+\b\tab -\b0 Vesting\b : \b0 Array of \b\i VestingEntity\par
+\par
+\pard\li720\cf3\b0\i0 -InvestmentLoans:\i  Array of \cf0\b InvestmentLoan \par
+\cf3\b0\i0\par
+-AvailableCashBalance\cf0\b :\b0\i  Number\cf3\i0\par
+\par
+-Margin\i : Boolean\i0\par
+\par
+-MarginBalance\cf0\b :\b0\i  Number\cf3\i0\par
+\par
+-ShortBalance\cf0\b :\b0\i  Number\cf3\i0\par
+\par
+-RolloverAmount\cf0\b :\b0\i  Number\cf3\i0\par
+\par
+-EmployerName\cf0\b : \b0\i String\cf3\i0\par
+\par
+-BrokerId\cf0\b : \b0\i String\cf3\i0\par
+\par
+-PlanId: \i String\i0\par
+\par
+-CalendarYearFor401k: \cf0\i Timestamp\cf4\i0\par
+\cf3\par
+-BalanceList: Array of \cf0\b\i InvestmentBalance\cf4\par
+\par
+\cf3\b0\i0 -DailyChange\cf0\b :\b0\i  Number\cf3\i0\par
+\par
+-PercentageChange\cf0\b :\b0\i  Number\cf3\i0\par
+\par
+-Transactions:\i  Array of \cf0\b InvestmentTransaction\par
+\pard\i0\par
+-ErrorEntity\par
+\b0\tab -Code: String\par
+\tab\par
+\tab -Message: String\par
+\par
+\par
+\ul\b\fs28 4.Sample Request/Response\ulnone\b0\fs22\par
+\par
+\par
+\pard\sa200\sl276\slmult1 Appliction Endpoint:  /api/v1/account \par
+HTTP method:  POST\par
+Accept: application/json\par
+Content-Type: application/json\par
+\b Request body example:\b0\par
+ \{\par
+      "AccountId" :"0001001DEPO"\par
+ \}\par
+\par
+\b Response body example\b0 :\par
+\fs20 HTTP/1.1 200 OK\fs22\par
+Content-Type: application/json\par
+\pard\sa200\sl240\slmult1\{\par
+     "DepositAccount": \{\par
+\pard\sa200\sl276\slmult1\tab "AccountId" : "0001001DEPO",\par
+\tab "ParentAccountId" : "0001001",\par
+\pard\sa200\sl240\slmult1         \tab "BalanceAsOf" : 2018-05-01T15:16:03.387Z,\par
+\tab "CurrentBalance": 90000.00,\par
+\tab "OpeningDayBalance" : 100000.00,\par
+\tab "AvailableBalance" : 90000.00,\par
+\tab "AnnualPercentageYield": 10.05,\par
+\tab "InterestYtd" : 20.00,\par
+\tab "Term" : 10.00,\par
+\tab "MaturityDate" : 2018-05-01T15:16:03.387Z,\par
+\tab "Transactions" : [\{"TRANSFER,'CGSalary',101"\},\{"\cf3 ADJUSTMENT\cf0 ,'Hsbc',102"\},...]\par
+    \}\par
+\}\par
+Response type: DepositAccount\par
+\par
+\pard\ul\b\fs28 5.Security\par
+\ulnone\b0\fs22\par
+Use Basic Spring boot security feature of  authentication using the security dependency that requires to enter username and password  before the user acesses the Endpoint.\par
+\par
+\ul\b\fs28 6.Exception Handling/HTTP response codes\par
+\cf3\ulnone\b0\f1\fs16\par
+\cf0\lang1033\f0\fs22 Error Code  \tab HTTP Status Code \tab\tab Description\lang9\fs28\par
+\fs22\tab\tab\cf5 200 \tab\tab\tab\tab OK ,successful response from the endpoint\par
+\tab\tab 201\tab\tab\tab\tab Created,\lang1033\protect\outl The request has been fulfilled, \protect0\tab\tab\tab\tab\tab\tab\tab\protect resulting in the creation of a new resource\cf1\lang9\protect0\outl0\par
+\cf0\tab\tab\cf1 400 \tab\tab\tab\tab Bad Request\par
+\tab\tab 401\tab\tab\tab\tab Unauthorized,User is not authenticated \par
+701\tab\tab 404\tab\tab\tab\tab Account not found\cf0\par
+\cf3\par
+\f1\fs16\par
+\cf0\ul\b\f0\fs28\par
+\ulnone\b0\fs22\par
+\par
+\par
+\pard\sa200\sl240\slmult1\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+}
+ 
