@@ -1,0 +1,76 @@
+#%RAML 1.0
+baseUri: https://mocksvc.mulesoft.com/mocks/f3ff7461-0ebf-4128-a066-d544b04b8e00 # 
+title: paymentdetails
+version: v1
+protocols: [HTTP]
+mediaType: application/json
+
+uses: 
+  library: paymentlibrary.raml
+
+securitySchemes: 
+  oauth2_0: !include oauth_2.0.raml
+
+securedBy: oauth2_0   
+
+/api/v1/loan/paymentdetails:
+ post:
+  description: Payment details for loan account
+  body: 
+    application/json:
+     example:
+      { 
+       accountId: "13579024"
+      }
+
+  responses: 
+   200:
+    body:
+     application/json:
+        example: 
+          {
+            "PaymentDetails" : {
+                           "AccountId" : "1357902469",
+                           "OriginalPrincipal" : "300000",
+                           "LoanTerm" : "5",
+                           "TotalNumberOfPayments": "12",
+                           "PaymentFrequency" : "MONTHLY"
+                         },
+            PaymentDetail: !include paymentdetailsexample.raml
+          }
+
+   404:
+    body: 
+     application/json:
+       example:
+        {
+          code: "404",
+          message: "Account not found"
+        }
+
+   400:
+    body: 
+     application/json:
+       example:
+        {
+          code: "400",
+          message: "Invalid request parameter passed"
+        }
+
+   401:
+    body: 
+     application/json:
+       example:
+        {
+          code: "401",
+          message: "You are not authorized"
+        }  
+
+   500:
+    body: 
+     application/json:
+       example:
+        {
+          code: "500",
+          message: "Opps! Something went wrong"
+        }                 
