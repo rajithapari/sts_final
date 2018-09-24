@@ -1,0 +1,49 @@
+#%RAML 1.0
+baseUri: https://mocksvc.mulesoft.com/mocks/4cd82957-f03e-4fb8-ba3a-fc59753b1f8e/api/v1 # 
+title: StargateSpringBootRamlDesign
+version: v1 
+protocols: [HTTP]
+mediaType: application/json
+
+uses: 
+  resourceLibrary: ResourcesLibrary.raml
+
+/depositaccount:
+  get:
+    description: Get All Deposit Accounts which are approching maturity date
+    queryParameters: 
+      currentDate: date-only
+    responses: 
+      200:
+        body: 
+          application/json:
+            type: resourceLibrary.DepositAccount[]
+            example:  !include DepositAccountExample.raml
+      204:
+        body: 
+          application/json:
+            type: resourceLibrary.Error
+            example:
+              {
+                "code": 204,
+                "message": "There is no deposit account which is getting
+                          matured in the next 15 days"
+              }
+      400:
+        body: 
+          application/json:
+            type: resourceLibrary.Error
+            example:
+              {
+                "code": 400,
+                "message": "Invalid Request please check your URL and parameters"
+              }
+      500:
+        body: 
+          application/json:
+            type: resourceLibrary.Error
+            example:
+              {
+                "code": 500,
+                "message": "Internal Server Error"
+              }
