@@ -1,0 +1,61 @@
+#%RAML 1.0 
+baseUri: https://mocksvc.mulesoft.com/mocks/70f87243-5926-421c-8d84-ded24a8e0231 # 
+title: Give transfer details on the basis of TransferStatus
+version: v1
+protocols: [HTTPS]
+mediaType: application/json
+uses:
+ library: Entities.raml
+
+securitySchemes:
+ TransferSecurityScheme: !include securitySchemeTest.raml
+
+securedBy: TransferSecurityScheme
+
+/api/v1/transfer: 
+
+ get:
+  queryParameters: 
+   status : string
+  responses: 
+   200:
+    body: 
+     application/json:
+          example: !include example.raml
+   400:
+     body:
+      application/json:
+          example:
+           {
+             code: "400",
+            "message": "Bad Request-the request hostname is                     invalid"
+          }
+
+      
+   404:
+       body: 
+         application/json:
+           example:
+            {
+               code: "404",
+               "message":"resource Not Found" 
+            }  
+
+   500:
+        body: 
+         application/json:
+           example:
+            {
+               code: "500",
+               "message":"Internal server error" 
+            } 
+
+
+   408:
+        body: 
+         application/json:
+           example:
+            {
+               code: "408",
+               "message":"Reqest TimeOut" 
+            } 
