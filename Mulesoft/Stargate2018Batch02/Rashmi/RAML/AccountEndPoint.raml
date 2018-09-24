@@ -1,0 +1,246 @@
+#%RAML 1.0
+title: To get the Account details for a given account Id
+version: v1
+protocols: [HTTP]
+mediaType: application/json
+
+#Definitions for Security Model
+securitySchemes: 
+  AccountSecurityScheme: !include EndPointSecurityScheme.raml
+
+#Definitions for Simple data types
+types: 
+  String64:
+   type: string
+   maxLength: 64
+
+  Currency:
+   type: object
+   properties: 
+     currencyRate:
+      type: number
+     currencyCode:
+      type: string
+      enum: [AED,AFN,ALL,AMD,ANG,AOA,ARS,AUD,AWG,AZN,BAM,BBD,BDT,BGN,BHD,BIF,BMD,               BND,BOB,BOV,BRL,BSD,BTN,BWP,BYR,BZD,CAD,CDF,CHE,CHF,CHW,CLF,CLP,CNY,               COP,COU,CRC,CUC,CUP,CVE,CZK,DJF,DKK,DOP,DZD,EGP,ERN,ETB,EUR,FJD,FKP,               GBP,GEL,GHS,GIP,GMD,GNF,GTQ,GYD,HKD,HNL,HRK,HTG,HUF,IDR,ILS,INR,IQD,               IRR,ISK,JMD,JOD,JPY,KES,KGS,KHR,KMF,KPW,KRW,KWD,KYD,KZT,LAK,LBP,LKR,               LRD,LSL,LYD,MAD,MDL,MGA,MKD,MMK,MNT,MOP,MRO,MUR,MVR,MWK,MXN,MXV,MYR,               MZN,NAD,NGN,NIO,NOK,NPR,NZD,OMR,PAB,PEN,PGK,PHP,PKR,PLN,PYG,QAR,RON,               RSD,RUB,RWF,SAR,SBD,SCR,SDG,SEK,SGD,SHP,SLL,SOS,SRD,SSP,STD,SVC,SYP,               SZL,THB,TJS,TMT,TND,TOP,TRY,TTD,TWD,TZS,UAH,UGX,USD,USN,UYI,UYU,UZS,               VEF,VND,VUV,WST,XAF,XAG,XAU,XBA,XBB,XBC,XBD,XCD,XDR,XOF,XPD,XPF,XPT,               XSU,XTS,XUA,XXX,YER,ZAR,ZMW,ZWL]
+
+  Error:
+   type: object
+   properties: 
+     code:
+      type: string
+      required: true
+      pattern: \d+
+     message:
+      type: string 
+      
+  Identifier:
+   type: string
+   pattern: \d+
+   maxLength: 128
+   minLength: 1
+
+#Definitions for Entities and Related Entities
+  AccountDescriptor:
+   type: object
+   properties: 
+    AccountId:
+      type: Identifier
+      required: true
+    AccountType:
+     type: string
+     enum: [401A,401K,403B,"529",AUTOLOAN,CD,CHARGE,CHECKING,                                  COMMERCIALLINEOFCREDIT,COMMERCIALLOAN,COVERDELL,CREDITCARD,ESCROW,ESOP,            GUARDIAN,HOMEEQUITYLOAN,HOMELINEOFCREDIT,INSITUTIONALTRUST,INSTALLMENT,            IRA,KEOGH,LINEOFCREDIT,LOAN,MILATARYLOAN,MONEYMARKET,MORTGAGE,                     PERSONALLOAN,ROLLOVER,ROTH,SARSEP,SAVINGS,SMBLOAN,STUDENTLOAN,TAXABLE,             TDA,TRUST,UGMA,UTMA]
+    DisplayName: 
+     type: string
+     required: true
+    Status:
+     type: string
+     enum: [OPEN, CLOSED, PENDINGOPEN, PENDINGCLOSE, DELINQUENT,PAID,                          NEGATIVECURRENTBALANCE]
+     required: true
+    Description:
+     type: string
+
+  Account:
+   type: AccountDescriptor
+   properties: 
+    ParentAccountId:
+     type: Identifier
+    Nickname: 
+     type: string
+    Currency:
+     type: Currency
+     required: true
+    AccountNumber:
+     type: string
+     required: true
+    InterestRate:
+     type: number
+     required: true
+    InterestRateType:
+     type: string
+     enum: [FIXED,VARIABLE]
+    MicrNumber:
+     type: String64
+
+  DepositAccount:
+   type: Account
+   properties: 
+    BalanceAsOf:
+     type: datetime-only
+     required: true
+    CurrentBalance:
+     type: number
+     required: true
+    OpeningDayBalance:
+     type: number
+    AvailableBalance:
+     type: number
+    AnnualPercentageYield:
+     type: number
+    InterestYtd:
+     type: number
+    MaturityDate:
+     type: datetime-only
+    Term:
+     type: integer
+
+  InvestmentAccount:
+   type: Account
+   properties: 
+    BalanceAsOf:
+     type: datetime-only
+     required:  true 
+    CurrentValue: 
+     type: number
+    AllowedCheckWriting:
+     type: boolean
+     enum: [true,false]
+    AllowedOptionTrade:
+     type: boolean
+     enum: [true,false]
+    AvailableCashBalance:
+     type: number
+    Margin:
+     type: boolean
+     enum: [true,false]
+     
+
+  LoanAccount:
+   type: Account
+   properties: 
+    BalanceAsOf:
+     type: datetime-only
+     required: true
+    PrincipalBalance:
+     type: number
+     required: true
+    EscrowBalance:
+     type: number
+    OriginalPrincipal:
+     type: number
+     required: true
+    OriginatingDate:
+     type: datetime-only
+    LoanTerm:
+     type: integer
+     required: true
+    TotalNumberOfPayments:
+     type: integer
+     required: true
+    NextPaymentAmount:
+     type: number
+    NextPaymentDate:
+     type: datetime-only
+    PaymentFrequency:
+     type: string
+     enum: [ANNUALLY,BIWEEKLY,DAILY,MONTHLY,SEMIANNUALLY,SEMIMONTHLY,WEEKLY]
+     required: true
+    CompoundingPeriod:
+     type:  string
+     enum: [DAILY, WEEKLY, BIWEEKLY, SEMIMONTHLY, MONTHLY,SEMIANNUALLY, ANNUALLY]
+    MaturityDate:
+     type: datetime-only
+
+  LocAccount:
+    type: Account
+    properties: 
+      BalanceAsOf:
+       type: datetime-only
+       required: true
+      CreditLine:
+       type: number
+       required: true
+      AvailableCredit:
+       type: number
+       required: true
+      NextPaymentAmount:
+       type: number
+       required: true
+      NextPaymentDate:
+       type: datetime-only
+       required: true
+      PrincipalBalance:
+       type: number
+       required: true
+      CurrentBalance:
+       type: number
+       required: true
+      AvailableCash:
+       type: number
+
+#Actual Endpoint Requests and Responses 
+/api/v1/account:
+ securedBy: [AccountSecurityScheme]
+ description: "Get an Account"
+ post:
+   body:
+    application/json:
+      example:
+       {
+         "AccountId": "0004452102"
+       }
+   responses: 
+     200:
+      body: 
+       application/json:
+        examples: 
+         DepositAccount : !include DepositAccountResponse.raml
+         Investment: !include InvestmentAccountResponse.raml
+         LoanAccount: !include LoanAccountResponse.raml
+         LocAccount: !include LocAccountResponse.raml
+     
+     400:
+      body: 
+        application/json:
+         type: Error
+         example:
+          {
+             "code" : "400",
+             "message" : "Bad Request"
+          }    
+     401:   
+      body: 
+        application/json:
+         type: Error
+         example:
+          {
+             "code" : "401",
+             "message" : "Unauthorized Access"
+          }    
+     404:
+      body: 
+        application/json:
+         type: Error
+         example:
+          {
+             "code" : "404",
+             "message" : "Account not found"
+          }
+     500:
+      body: 
+        application/json:
+         type: Error
+         example:
+          {
+             "code" : "500",
+             "message" : "Internal Server Error"
+          }         
