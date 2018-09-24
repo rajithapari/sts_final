@@ -1,0 +1,41 @@
+#%RAML 1.0 NamedExample
+value: {
+  Transactions:
+   {
+     "total":1,
+     "totalpages":1,
+     "page":1,
+     "DepositeTransaction":
+     [
+      {
+      "transactionId:":"111222333",
+      "accountId:":"10001",
+      "transactionType":"WITHDRAWAL",
+      "payee":"Jhon",
+      "checkNumber":"556325",
+      "status":"PENDING",
+      "amount":5050
+
+      },
+      {
+      "transactionId:":"111222334",
+      "accountId:":"10001",
+      "transactionType":"WITHDRAWAL",
+      "payee":"Jhon",
+      "checkNumber":"556326",
+      "status":"PENDING",
+      "amount":5055        
+      },
+      {
+      "transactionId:":"111222335",
+      "accountId:":"10001",
+      "transactionType":"CHECK",
+      "payee":"Jhon",
+      "checkNumber":"556322",
+      "status":"PENDING",
+      "amount":6055        
+      } 
+    ]
+ }
+}
+  
