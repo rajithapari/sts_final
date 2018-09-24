@@ -1,0 +1,55 @@
+#%RAML 1.0 Library
+usage: This library defines all the resource entity used
+
+types: 
+  Error: 
+    description: This is Error Entity which have error message along with the codes
+    type: object
+    properties: 
+      code:
+        type: integer
+      message:
+        type: string
+  Identifier:
+    type: string
+    pattern: \d+
+    maxLength: 128
+  AccountDescriptor:
+    description: This is account descriptor entity parent of account entity
+    type: object
+    properties: 
+      AccountId: Identifier
+      AccountType:
+        enum: ['ESOP','GUARDIAN','HOMEEQUITYLOAN','HOMELINEOFCREDIT','INSITUTIONALTRUST','INSTALLMENT','IRA','KEOGH','LINEOFCREDIT','LOAN','MILATARYLOAN','MONEYMARKET','MORTGAGE','PERSONALLOAN','ROLLOVER','ROTH','SARSEP','SAVINGS','SMBLOAN','STUDENTLOAN','TAXABLE','TDA','TRUST','UGMA','UTMA','401A','401K','403B','529','AUTOLOAN','CD','CHARGE','CHECKING','COMMERCIALLINEOFCREDIT','COMMERCIALLOAN','COVERDELL','CREDITCARD','ESCROW']
+        required: false
+      DisplayName:
+        type: string
+      Status:
+        type: string
+        enum: ['CLOSED','DELINQUENT','NEGATIVECURRENTBALANCE','OPEN','PAID','PENDINGCLOSE','PENDINGOPEN']
+      Description:
+        type: string
+        required: false
+  Account: 
+    description: This is Account Entity which inherits Account Descriptor Entity
+    type: AccountDescriptor
+    properties: 
+      Nickname:
+        type: string
+        required: false
+      AccountNumber:
+        type: string
+      InterestRate:
+        type: number
+      Currency:
+        type: string
+  DepositAccount: 
+    description: This is Deposit Account Entity which inherits Account Entity
+    type: Account
+    properties: 
+      BalanceAsOf:
+        type: date-only
+      CurrentBalance:
+        type: number
+      MaturityDate:
+        type: date-only
