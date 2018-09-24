@@ -8,8 +8,11 @@ mediaType: application/json
 
 uses : 
   libarary: Accountlibrary.raml
-
-/v1/accounts: 
+securitySchemes: 
+  basic:
+   description: This API support basic authentication
+   type: Basic Authentication
+/accounts: 
  get:
   description: The query parameter is specified
   queryParameters: 
