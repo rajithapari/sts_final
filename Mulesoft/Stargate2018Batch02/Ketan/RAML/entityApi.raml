@@ -1,0 +1,104 @@
+#%RAML 1.0
+baseUri: https://mocksvc.mulesoft.com/mocks/dd9bb979-8173-486d-9dd8-7bce43c20b8b # 
+title: EntityApi
+types: 
+  Identifier: 
+    type: string
+    pattern: \d+ 
+    maxLength: 128
+  
+  AccountDescriptor:
+    type: object
+    description: AccountDescriptor Parent Entity
+    properties: 
+      accountId: Identifier
+      accountType:
+        enum: [401A,401K,403B,AUTOLOAN,CD,CHARGE,CHECKING,COMMERCIALLINEOFCREDIT,                           COMMERCIALLOAN, COVERDELL,CREDITCARD,ESCROW,ESOP,GUARDIAN,HOMEEQUITYLOAN,                    HOMELINEOFCREDIT,INSITUTIONALTRUST INSTALLMENT,IRA,KEOGH,LINEOFCREDIT,LOAN,                  MILATARYLOAN,MONEYMARKET,MORTGAGE,PERSONALLOAN,ROLLOVER, ROTH,SARSEP,SAVINGS,                SMBLOAN,STUDENTLOAN,TAXABLE,TDA,TRUST,UGMA,UTMA]
+      displayName: string
+      description: string
+      accountStatus:
+        enum: [OPEN, CLOSED, PENDINGOPEN, PENDINGCLOSE, DELINQUENT,
+              PAID, NEGATIVECURRENTBALANCE,APPROVED,REJECTED]
+      
+
+  Account:
+    type: AccountDescriptor
+    description: Extends and inherits all fields from AccountDescriptor
+    properties: 
+      parentAccountId: Identifier
+      nickname: string
+      accountNumber: string
+      interestRate: number
+ 
+
+  Transaction:
+    type: object
+    description: Entity that describes transaction details
+    properties: 
+      accountId: Identifier
+      transactionId: Identifier
+      transactionTimestamp: date-only
+      description: string
+      imageIds: string[]
+      status: 
+        enum: [PENDING, MEMO, POSTED, AUTHORIZATION]
+      amount: number
+
+  PaymentDetails:
+    type: object
+    description: Entity that describes payment details
+    properties: 
+      principalAmount: number
+      interestAmount: number
+      insuranceAmount: number
+      feesAmount: number 
+
+  Error:
+    type: object
+    description: Entity that describes error information
+    properties: 
+      code: 
+       required: true
+       type: string
+      message:
+       required: false
+       type: string
+      
+  DepositTransaction:
+    type: Transaction
+    description: Extends and inherits all fields from Transaction
+    properties: 
+      transactionType:
+        enum: [CHECK, WITHDRAWAL, TRANSFER, POSDEBIT,ATMWITHDRAWAL, BILLPAYMENT, FEE,                       DEPOSIT, ADJUSTMENT,INTEREST, DIVIDEND, DIRECTDEPOSIT, ATMDEPOSIT, POSCREDIT]
+      payee: string
+      checkNumber: integer
+
+
+  InvestmentTransaction:
+    type: Transaction
+    description: Extends and inherits all fields from Transaction
+    properties: 
+      investmentTransactionType:
+       enum: [PURCHASED, SOLD, PURCHASEDTOCOVERADJUSTMENT,PURCHASETOOPEN, PURCHASETOCLOSE,                 SOLDTOOPEN,SOLDTOCLOSE, INTEREST, MARGININTEREST,REINVESTOFINCOME,                           RETURNOFCAPITAL, TRANSFER,CONTRIBUTION, FEE, OPTIONEXERCISE, OPTIONEXPIRATION,
+              DIVIDEND, DIVIDENDREINVEST, SPLIT, CLOSURE, INCOME,EXPENSE, CLOSUREOPT,                      INVEXPENSE, JRNLSEC, JRNLFUND,OTHER, DIV, SRVCHG, DEP, ATM, POS, XFER, CHECK,                PAYMENT,CASH, DIRECTDEP, DIRECTDEBIT, REPEATPMT] 
+      shares: number
+      faceValue: number
+        
+
+  LoanTransaction:
+    type: Transaction
+    description: Extends and inherits all fields from Transaction
+    properties: 
+      laonTransactionType:
+       enum: [PAYMENT, FEE, ADJUSTMENT, INTEREST]
+      paymentDetails: PaymentDetails
+
+ 
+  LocTransaction: 
+    type: Transaction
+    description: Extends and inherits all fields from Transaction
+    properties: 
+      locTransactionType:
+       enum: [CHECK, WITHDRAWAL, PAYMENT, FEE, ADJUSTMENT, INTEREST]
+      checkNumber: integer
+      paymentDetails: PaymentDetails
