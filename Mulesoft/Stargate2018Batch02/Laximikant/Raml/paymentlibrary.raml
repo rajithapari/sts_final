@@ -1,0 +1,93 @@
+#%RAML 1.0 Library
+usage: payment details library
+
+types:
+ Identifier: 
+    type: string
+    pattern: \d+ 
+    maxLength: 128
+
+ AccountDescriptor:
+    type: object
+    properties: 
+      accountId: Identifier
+      accountType:
+        enum: [DEPOSIT_ACCOUNT, LOAN_ACCOUNT, LOC_ACCOUNT, INVENSTMENT_ACCOUNT]
+        required: false
+      displayName: 
+        type: string 
+        required: false       
+      description: 
+        type: string
+        required: false
+      accountStatus:
+        enum: [OPEN, CLOSED, PENDINGOPEN, PENDINGCLOSE, DELINQUENT,
+              PAID, NEGATIVECURRENTBALANCE,APPROVED,REJECTED]
+        required: false
+
+ Account:
+    type: AccountDescriptor
+    properties: 
+      parentAccountId: 
+       type: Identifier
+       required: false
+      nickname: 
+        type: string
+        required: false
+      accountNumber: string
+      interestRate: 
+       type: number
+       required: false
+
+ Transaction:
+    type: object
+    properties: 
+      accountId: Identifier
+      transactionId: Identifier
+      transactionTimestamp: 
+       type: date-only
+       required: false
+      description: 
+       type: string
+       required: false
+      amount: 
+       type: number
+       required: false
+ 
+ LoanTransaction:
+    type: Transaction
+    properties: 
+      trasactionType: 
+        enum: [PAYMENT, FEE, ADJUSTMENT, INTEREST]
+      
+ PaymentDetails:
+    type: object
+    properties: 
+      PrincipalAmount : number
+      InterestAmount : number
+      InsuranceAmount : number
+      EscrowAmount : number
+      PmiAmount : number
+      FessAmount : number
+
+ LoanAccount:
+    type: Account
+    properties: 
+      BalanceAsOf: 
+       type: datetime
+       required: false
+      PrincipalBalance: 
+       type: number
+       required: false
+      OrigionalPrinciple: number
+      LoanTeram: integer
+      TotalNumberOfPayments: integer
+      PaymentFrequency: 
+       enum: [DAILY, WEEKLY, BIWEEKLY, SEMIMONTHLY, MONTHLY,
+              SEMIANNUALLY, ANNUALLY]
+
+ Error:
+  type: object
+  properties: 
+   Code: integer
+   message: string 
