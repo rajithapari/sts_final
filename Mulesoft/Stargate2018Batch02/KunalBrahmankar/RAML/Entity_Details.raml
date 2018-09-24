@@ -1,0 +1,59 @@
+#%RAML 1.0
+baseUri: https://mocksvc.mulesoft.com/mocks/bc70b811-9b49-448d-9225-19502b830447 # 
+title: Entity_Details
+types: 
+  Identifier:
+    type: string
+    pattern: \d+
+    maxLength: 128
+
+  AccountDescriptor: 
+     type: object
+     properties: 
+       accountId: Identifier
+       accountType:
+        enum: [401A,401K,403B,AUTOLOAN,CD,CHARGE,CHECKING,COMMERCIALLINEOFCREDIT,COMMERCIALLOAN,                 COVERDELL,CREDITCARD,ESCROW,ESOP,GUARDIAN,HOMEEQUITYLOAN,HOMELINEOFCREDIT,                        INSITUTIONALTRUST INSTALLMENT,IRA,KEOGH,LINEOFCREDIT,LOAN,MILATARYLOAN,                           MONEYMARKET,MORTGAGE,PERSONALLOAN,ROLLOVER, ROTH,SARSEP,SAVINGS,SMBLOAN,                          STUDENTLOAN,TAXABLE,TDA,TRUST,UGMA,UTMA] 
+       displayName: string
+       description: string
+       accountStatus:
+        enum: [OPEN, CLOSED, PENDINGOPEN, PENDINGCLOSE, DELINQUENT, PAID, NEGATIVECURRENTBALANCE]
+
+  Account:
+   type: AccountDescriptor 
+   properties: 
+      parentAccountId: Identifier
+      accountNumber: string
+      interestRate: number
+
+  InvestmentAccount:
+   type: Account
+   properties: 
+        balanceAsOf: datetime
+        currentValue: number
+      
+  InvestmentLoan:
+   type: object
+   properties: 
+     loanId: string
+     loanDescription: string
+     initialLoanBalance: number
+     loanStartDate: datetime
+     currentLoanBalance: number
+     dateAsOf: datetime
+     loanRate: number
+     loanPaymentAmount: number
+     loanPaymentFrequency:
+      enum: [WEEKLY, BIWEEKLY, TWICEMONTHLY, MONTHLY,FOURWEEKS,
+             BIMONTHLY, QUARTERLY, SEMIANNUALLY, ANNUALLY, OTHER]
+     loanPaymentInitial: number
+     loanPaymentsRemaining: integer
+     loanMaturityDate: datetime
+     loanInterestToDate: number
+     loanTotalProjectedInterest: number
+     loanNextPaymentDate: datetime
+
+  Error:
+   type: object
+   properties: 
+     code: string
+     message: string
