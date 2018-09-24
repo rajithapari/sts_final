@@ -1,0 +1,54 @@
+#%RAML 1.0
+baseUri: https://mocksvc.mulesoft.com/mocks/8ace608b-b25b-47ed-9595-9620081b91d9 # 
+title: To get all transaction for an account with status as pending
+version: v1
+protocols: [HTTP]
+mediaType: application/json
+uses: 
+  library: entityApi.raml
+
+/api/v1/account/transaction:
+ post:
+  body: 
+    application/json:
+      example:
+       {
+         "accountId":10001,
+         "status":"PENDING"
+       }
+  responses: 
+    200:
+     body: 
+       application/json:
+         example: !include transactionExample.raml
+          
+
+    404:
+     body: 
+       application/json:
+         type: library.Error 
+         example: 
+          { 
+            "message" : "Account Not found", 
+            "code" : "404" 
+          }
+
+    400:
+     body: 
+       application/json:
+        type: library.Error
+        example:
+         { 
+            "message" : "Invalid Parameters", 
+            "code" : "400" 
+          }
+
+    401:
+     body: 
+       application/json:
+        type: library.Error
+        example:
+         {
+           "message" : "Source account not authorized", 
+            "code" : "401"
+         }     
