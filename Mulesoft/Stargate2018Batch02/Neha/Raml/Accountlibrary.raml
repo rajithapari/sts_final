@@ -1,0 +1,64 @@
+#%RAML 1.0 Library
+usage: "Account & AccountDescriptor Library"
+
+types: 
+  Identifier: 
+   type: string
+   pattern: \d+
+   maxLength: 128
+  AccountDescriptor:
+   type: object
+   properties: 
+     accountId: Identifier
+     accountType:
+      enum: [ESOP,GUARDIAN,HOMEEQUITYLOAN,HOMELINEOFCREDIT,                       INSITUTIONALTRUST,INSTALLMENT,IRA,KEOGH,LINEOFCREDIT,                LOAN,MILATARYLOAN,MONEYMARKET,MORTGAGE,PERSONALLOAN,                 ROLLOVER,ROTH,SARSEP,SAVINGS,SMBLOAN,STUDENTLOAN,                    TAXABLE,TDA,TRUST,UGMA,UTMA,401A,401K,403B,AUTOLOAN,CD,              CHARGE,CHECKING,COMMERCIALLINEOFCREDIT,COMMERCIALLOAN,               COVERDELL,CREDITCARD,ESCROW]
+      required: false
+     displayName: 
+      type: string
+     description: 
+      type: string
+      required: false
+     status:
+      enum: [CLOSED,DELINQUENT,NEGATIVECURRENTBALANCE,OPEN,PAID,                  PENDINGCLOSE,PENDINGOPEN]
+      required: false
+      
+  Account:
+   type: AccountDescriptor
+   properties: 
+     parentAccountId:
+       type: Identifier
+       required: false
+     nickName: 
+      type: string
+      required: false
+     currency: 
+      type: string
+      required: false
+     lineOfBusiness: 
+      type: string
+      required: false
+     accountNumber:
+      type: string
+     interestRate: 
+      type: number
+     transferIn: 
+      type: boolean
+      required: false
+     transferOut:
+      type: boolean
+      required: false
+     interestRateType:
+      enum: [FIXED,VARIABLE]
+      required: false
+
+  Accounts:
+   type: object
+   properties: 
+     total:
+      type: number
+     totalPages:
+      type: number
+     page:
+      type: number
+     account: 
+      type: Account[]
