@@ -1,0 +1,74 @@
+#%RAML 1.0
+baseUri: https://mocksvc.mulesoft.com/mocks/047dd068-d6b1-47fc-8793-0b817dff647d # 
+title: Investment loan information
+version: v1
+protocols: [HTTP]
+mediaType: application/json
+uses: 
+   library: Entity_Details.raml
+   
+
+/v1/investmentloan:
+ post:
+  description: "Get investment loan information from Loan Id"
+  body: 
+    application/json:
+      example:
+       {
+        loanId : "101"
+       }
+  
+  responses: 
+     200:
+      body: 
+        application/json:
+         example: !include loan_info_example.raml
+
+     404:
+      body: 
+        application/json:
+         type: library.Error 
+         example: 
+            {
+             "message":Loan Id not found / source account closed" , "code" : "404"
+            }
+         
+     400:
+      body: 
+        application/json:
+         type: library.Error 
+         example: 
+           {
+            "message":"Invalid Loan Id" , "code" : "400" 
+           }
+   
+     500:
+       body: 
+         application/json:
+          type: library.Error
+          example: 
+           {
+            "message":"Intetrnal Server Error" , "code" : "500" 
+           }
+
+     
+
+
+
+     
+       
+ 
+     
+
+
+
+
+
+
+
+ 
+ 
+
+
+
+
