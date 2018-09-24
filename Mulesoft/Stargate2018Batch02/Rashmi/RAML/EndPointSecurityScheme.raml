@@ -1,0 +1,24 @@
+#%RAML 1.0 SecurityScheme
+type: OAuth 2.0
+description: Basic authentication scheme for the Account endpoint.
+describedBy: 
+  headers: 
+    Authorization:
+     description: 
+     type: string
+  queryParameters:
+   access_token:
+    type: string
+  responses: 
+   401:
+    description: Bad or Expired Access token.
+ 
+settings:
+   authorizationUri: https://api/v1/account/oauth2/authorize
+   accessTokenUri: https://api/v1/account/oauth2/token
+   authorizationGrants: [ authorization_code, implicit                   'urn:ietf:params:oauth:grant-type:saml2-bearer' ]
+    
+        
+
+  
+      
