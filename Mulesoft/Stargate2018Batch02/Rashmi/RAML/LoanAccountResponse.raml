@@ -1,0 +1,33 @@
+#%RAML 1.0 NamedExample
+value:
+ "LoanAccount":
+  {
+   "AccountId" : "0004452104",
+   "AccountType": "LOAN", 
+   "DisplayName": "ABC Loan Account" ,
+   "Status": "OPEN",
+   "Description": "Loan Account" ,
+   "ParentAccountId": "0001001" ,
+   "Nickname": "My Loan Account01",
+   "Currency": 
+    {
+      "currencyCode": "INR", 
+      "currencyRate": 60.5
+    },
+    "AccountNumber": "0001001123" ,
+    "InterestRate": 3.5,
+    "InterestRateType": "FIXED" ,
+    "MicrNumber": "MICR0001001DEPO",
+    "BalanceAsOf": 2018-12-31T23:59:00,
+    "PrincipalBalance": 100000.00 ,
+    "EscrowBalance": 90000 ,
+    "OriginalPrincipal":  100000,
+    "OriginatingDate": 2017-12-31T23:59:00,
+    "LoanTerm": 30.00,
+    "TotalNumberOfPayments": 19,
+    "NextPaymentAmount": 15000,
+    "NextPaymentDate": 2019-01-31T23:59:00,
+    "PaymentFrequency": "MONTHLY",
+    "CompoundingPeriod": "SEMIANNUALLY",
+    "MaturityDate": 2025-12-31T23:59:00 
+  }
