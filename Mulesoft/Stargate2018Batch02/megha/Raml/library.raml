@@ -1,0 +1,115 @@
+#%RAML 1.0 Library
+usage: It is the file containg all entities
+types: 
+  Identifier: 
+    type: string
+    pattern: \d+ 
+    maxLength: 128
+  AccountDescriptor:
+    type: object
+    properties: 
+      AccountId: Identifier
+      AccountType:
+       enum: [AUTOLOAN, CD ,CHARGE, CHECKING ,COMMERCIALLINEOFCREDIT, COMMERCIALLOAN, COVERDELL, CREDITCARD ,ESCROW ,ESOP ,GUARDIAN ,HOMEEQUITYLOAN, HOMELINEOFCREDIT, INSITUTIONALTRUST, INSTALLMENT, IRA ,KEOGH, LINEOFCREDIT, LOAN, MILATARYLOAN, MONEYMARKET, MORTGAGE PERSONALLOAN, ROLLOVER, ROTH ,SARSEP, SAVINGS, SMBLOAN, STUDENTLOAN, TAXABLE, TDA, TRUST, UGMA ,UTMA]
+      DisplayName: 
+       type: string
+      Status:
+        enum: [OPEN, CLOSED, PENDINGOPEN, PENDINGCLOSE, DELINQUENT,
+              PAID, NEGATIVECURRENTBALANCE,APPROVED,REJECTED]
+  Account:
+    type: AccountDescriptor
+    properties: 
+      ParentAccountId:
+       type: Identifier
+      Nickname:
+       type: string
+      AccountNumber: 
+       type: string
+       required: true
+      InterestRate: 
+       type: number
+       required: true
+      Currency : 
+       type: string
+       required: true
+      
+  DepositAccount:
+    type: Account
+    properties:
+      BalanceAsOf: 
+       type: datetime
+       required: false
+      CurrentBalance: 
+       type: number
+       required: false
+      AvailableBalance:
+       type: number
+       required: false
+      Transactions:
+       type: DepositTransaction[]
+
+  Transaction:
+    type: AccountDescriptor
+    properties: 
+      AccountId: 
+       type: Identifier
+      TransactionId: 
+       type: Identifier
+      ReferenceTransactionId : 
+       type: Identifier
+      TransactionTimestamp: 
+       type: time-only
+      Amount: 
+       type: number
+       required: true
+  DepositTransaction:
+    type: Transaction
+    properties: 
+      transactionType:
+        enum: [CHECK, WITHDRAWAL, TRANSFER, POSDEBIT,ATMWITHDRAWAL, BILLPAYMENT, FEE, DEPOSIT, ADJUSTMENT,INTEREST, DIVIDEND, DIRECTDEPOSIT, ATMDEPOSIT, POSCREDIT]
+      payee: 
+       type: string
+       required: false
+      checkNumber: 
+       type: integer
+       required: false
+  Error:
+   type:
+    properties:
+     code: integer
+     message: string 
+  Accounts:
+    type: object
+    properties: 
+      Total:
+        type: integer
+      TotalPages:
+        type: integer
+      Page:
+       type: integer
+      AccountArray:
+       type: Account[]   
+
+  LoanTransaction:
+   type: Transaction
+   properties: 
+     TransactionType:
+        enum: [PAYMENT, FEE, ADJUSTMENT, INTEREST]
+  LoanAccount:
+   type: Account
+   properties: 
+     BalanceAsOf:
+      type: date-only
+     PrincipalBalance :
+      type: number
+     OriginalPrincipal :
+       type: number
+     TotalNumberOfPayments :
+       type: integer
+     Transactions:
+       type: LoanTransaction[]
+     PaymentFrequency:
+       enum: [ANNUALLY,BIWEEKLY,DAILY,MONTHLY,SEMIANNUALLY,SEMIMONTHLY,WEEKLY]      
+
+         
+
