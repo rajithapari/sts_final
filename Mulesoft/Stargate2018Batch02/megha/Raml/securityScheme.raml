@@ -1,0 +1,32 @@
+#%RAML 1.0
+baseUri: https://mocksvc.mulesoft.com/mocks/9d773727-6af7-46aa-a3e5-c434a2f7c5eb # 
+title: security
+securitySchemes:
+ oauth_2_0:
+    description: Each request must contain the headers necessary for
+                 basic authentication
+    type: OAuth 2.0
+    describedBy:
+      headers: 
+         Authorization:
+          description:  Used to send a valid OAuth 2 access token. Do not use 
+                         with the "access_token" query string parameter. 
+
+          type: string
+      queryParameters: 
+        access_token:
+         description:  Used to send a valid OAuth 2 access token.
+         type: string     
+         
+        401:
+          description: |
+            Unauthorized. Either the provided username and password
+            combination is invalid, or the user is not allowed to access
+            the content provided by the requested URL.
+        403:
+         description: Bad OAuth request (wrong consumer key, bad nonce,                              expired timestamp...). Unfortunately, re-authenticating  
+    settings:
+               authorizationUri:  https://localhost:8080/oauth2/authorize
+               accessTokenUri: https://musicapi.com/1/oauth2/token
+               authorizationGrants: implicit 
+                                                   
