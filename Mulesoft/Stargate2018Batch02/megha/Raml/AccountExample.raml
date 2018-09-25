@@ -1,0 +1,37 @@
+#%RAML 1.0
+baseUri:    https://mocksvc.mulesoft.com/mocks/0f7e69aa-6c74-4486-8641-000baaf4ec7e # 
+title: accountDetails
+version: v1
+protocols: [HTTP]
+mediaType: application/json  
+
+uses: 
+  library: library.raml
+  securitySchemes:  
+  oauth_2.0: !include securityScheme.raml
+securedBy: [oauth_2.0]  
+     
+
+/accountdetails:
+ get:
+   description:  get all acount details 
+   responses: 
+     200:
+       body: 
+        application/json:
+         type: library.Accounts
+         example: !include AccountDetails.raml
+
+     400:
+       body: 
+         application/json:
+           type: library.Error
+           example: {"message":"Invalid Request please check url",                         "code":400}   
+     500:
+       body:
+        application/json:
+          type: library.Error
+          example: {"message":"server not found", "code":500}   
+
+         
+           
