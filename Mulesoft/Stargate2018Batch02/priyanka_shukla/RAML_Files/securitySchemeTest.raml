@@ -1,0 +1,34 @@
+ #%RAML 1.0 SecurityScheme
+type: OAuth 2.0
+description: authentication for transfer status
+describedBy: 
+  headers: 
+    Authorization:
+      description: used to send a valid OAuth 2 access token. Do not use with the"access_token" query string parameter.
+      type: string
+    queryparameters:
+    access_token:
+      type: string
+  responses:
+   
+    400:
+      description: Bad OAuth Request
+
+    401:
+      description: Bad or Expired token
+      
+settings: 
+  authorizationUri: https://oauth2web.us-e2.cloudhub.io/oauth2/authorize  
+  accessTokenUri: https://oauth2web.us-e2.cloudhub.io/token
+  authorizationGrants: implicit   
+      
+         
+        
+
+    
+    
+    
+        
+    
+
+
