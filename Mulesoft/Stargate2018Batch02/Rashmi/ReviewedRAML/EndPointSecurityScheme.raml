@@ -1,0 +1,31 @@
+#%RAML 1.0 SecurityScheme
+type: OAuth 2.0
+description: Access Token based security scheme for the endpoint.
+uses:
+  datatypesLibrary : SimpleTypeDefinitions.raml
+describedBy: 
+  headers: 
+    access_token:
+     type: string
+
+  responses: 
+   #Error for Bad or Expired Access token.
+   400:
+    body: 
+      application/json:
+       type: datatypesLibrary.error
+       example:
+        {
+          "code" : "401",
+          "message" : "Unauthorized Access"
+        }   
+
+settings:
+   authorizationUri: https://oauth2project.us-e2.cloudhub.io/oauth2/authorize
+   accessTokenUri: https://oauth2project.us-e2.cloudhub.io/oauth2/token
+   authorizationGrants: client_credentials
+    
+        
+
+  
+      
