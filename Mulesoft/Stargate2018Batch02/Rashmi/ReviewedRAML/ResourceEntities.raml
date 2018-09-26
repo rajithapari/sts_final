@@ -1,0 +1,155 @@
+#%RAML 1.0 Library
+#Definitions for Entities and Related Entities
+uses:
+ library: SimpleTypeDefinitions.raml
+#Definitions for Entities and Related Entities
+types: 
+  #Parent Entity of type Object for all other entities defined below
+  accountDescriptor:
+   type: object
+   properties: 
+    accountId:
+      type: library.identifier
+      required: true
+    accountType:
+     type: string
+     enum: [401A,401K,403B,"529",AUTOLOAN,CD,CHARGE,CHECKING,                                  COMMERCIALLINEOFCREDIT,COMMERCIALLOAN,COVERDELL,CREDITCARD,ESCROW,ESOP,            GUARDIAN,HOMEEQUITYLOAN,HOMELINEOFCREDIT,INSITUTIONALTRUST,INSTALLMENT,            IRA,KEOGH,LINEOFCREDIT,LOAN,MILATARYLOAN,MONEYMARKET,MORTGAGE,                     PERSONALLOAN,ROLLOVER,ROTH,SARSEP,SAVINGS,SMBLOAN,STUDENTLOAN,TAXABLE,             TDA,TRUST,UGMA,UTMA]
+    displayName: 
+     type: string
+     required: true
+    status:
+     type: string
+     enum: [OPEN, CLOSED, PENDINGOPEN, PENDINGCLOSE, DELINQUENT,PAID,                          NEGATIVECURRENTBALANCE]
+     required: true
+    description:
+     type: string
+  
+  #Account entity that Extends & Inherits all the properties of AccountDescriptorEntity
+  account:
+   type: accountDescriptor
+   properties: 
+    parentAccountId:
+     type: library.identifier
+    nickname: 
+     type: string
+    currency:
+     type: library.currency
+     required: true
+    accountNumber:
+     type: string
+     required: true
+    interestRate:
+     type: number
+     required: true
+    interestRateType:
+     type: string
+     enum: [FIXED,VARIABLE]
+    micrNumber:
+     type: library.string64
+  
+  #DepositAccount entity that Extends & Inherits all the properties of AccountEntity
+  depositAccount:
+   type: account
+   properties: 
+    balanceAsOf:
+     type: date-only
+     required: true
+    currentBalance:
+     type: number
+     required: true
+    openingDayBalance:
+     type: number
+    availableBalance:
+     type: number
+    annualPercentageYield:
+     type: number
+    interestYtd:
+     type: number
+    maturityDate:
+     type: date-only
+    term:
+     type: integer
+
+  investmentAccount:
+   type: account
+   properties: 
+    balanceAsOf:
+     type: date-only
+     required:  true 
+    currentValue: 
+     type: number
+    allowedCheckWriting:
+     type: boolean
+     enum: [true,false]
+    allowedOptionTrade:
+     type: boolean
+     enum: [true,false]
+    availableCashBalance:
+     type: number
+    margin:
+     type: boolean
+     enum: [true,false]
+     
+
+  loanAccount:
+   type: account
+   properties: 
+    balanceAsOf:
+     type: date-only
+     required: true
+    principalBalance:
+     type: number
+     required: true
+    escrowBalance:
+     type: number
+    originalPrincipal:
+     type: number
+     required: true
+    originatingDate:
+     type: date-only
+    loanTerm:
+     type: integer
+     required: true
+    totalNumberOfPayments:
+     type: integer
+     required: true
+    nextPaymentAmount:
+     type: number
+    nextPaymentDate:
+     type: date-only
+    paymentFrequency:
+     type: string
+     enum: [ANNUALLY,BIWEEKLY,DAILY,MONTHLY,SEMIANNUALLY,SEMIMONTHLY,WEEKLY]
+     required: true
+    compoundingPeriod:
+     type:  string
+     enum: [DAILY, WEEKLY, BIWEEKLY, SEMIMONTHLY, MONTHLY,SEMIANNUALLY, ANNUALLY]
+    maturityDate:
+     type: date-only
+
+  locAccount:
+    type: account
+    properties: 
+      balanceAsOf:
+       type: date-only
+       required: true
+      creditLine:
+       type: number
+       required: true
+      availableCredit:
+       type: number
+       required: true
+      nextPaymentAmount:
+       type: number
+       required: true
+      nextPaymentDate:
+       type: date-only
+       required: true
+      principalBalance:
+       type: number
+       required: true
+      currentBalance:
+       type: number
+       required: true
+      availableCash:
+       type: number
