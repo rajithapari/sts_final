@@ -1,0 +1,93 @@
+#%RAML 1.0
+title: To get the Account details for a given account Id
+baseUri: https://mocksvc.mulesoft.com/mocks/4a0d35e8-11e9-4ee5-9411-4933c9008658/api/v1/dda # baseUri: api/v1/dda
+version: v1
+protocols: [HTTPS]
+mediaType: application/json
+
+#Definition of Security Model
+securitySchemes: 
+ accountSecurityScheme: !include EndPointSecurityScheme.raml
+
+#Definition of data types and Entities
+uses:
+ datatypesLibrary : SimpleTypeDefinitions.raml
+ entityLibrary: ResourceEntities.raml
+ 
+/accounts:
+ post:
+  headers: 
+    Content-Type:
+      enum: [application/json]
+  body: 
+   application/json:
+     example:
+      {
+        "accountId": "100001010"
+      }     
+  responses: 
+  #Successful in getting details fro one of the below accounts depending on               accountId
+   200:
+    body: 
+      application/json:
+       type: entityLibrary.depositAccount | entityLibrary.investmentAccount |                       entityLibrary.loanAccount | entityLibrary.locAccount
+       examples:
+        depositAccount : !include DepositAccountResponse.raml
+        investmentAccount: !include InvestmentAccountResponse.raml
+        loanAccount: !include LoanAccountResponse.raml 
+        locAccount: !include LocAccountResponse.raml
+     
+     #Errors due to incorrect URL/invalid or null account Id
+   400:
+      body: 
+        application/json:
+         type: datatypesLibrary.error
+         example:
+          {
+            "code" : "400",
+            "message" : "Bad Request"
+          }  
+
+     #Errors due to invalid credentials /invalid accesstoken    
+   401:   
+      body: 
+        application/json:
+         type: datatypesLibrary.error
+         example:
+          {
+             "code" : "401",
+             "message" : "Unauthorized Access"
+          }    
+
+     #Errors due to AccountId not found though valid Id/no authorization header    
+   404:
+      body: 
+        application/json:
+         type: datatypesLibrary.error
+         example:
+          {
+             "code" : "404",
+             "message" : "Account not found"
+          }
+
+     #Errors due to invalid methods(like POST instead of GET or HTTP instead of HTTPS) 
+   405:
+      body: 
+        application/json:
+         type: datatypesLibrary.error
+         example:
+          {
+             "code" : "405",
+             "message" : "Method not allowed"
+          }   
+          
+     #Errors when server is unavailable/Internal Server Issues     
+   500:
+      body: 
+        application/json:
+         type: datatypesLibrary.error
+         example:
+          {
+             "code" : "500",
+             "message" : "Internal Server Error"
+          }         
