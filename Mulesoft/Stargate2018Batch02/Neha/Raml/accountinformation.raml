@@ -1,45 +1,85 @@
 #%RAML 1.0
-baseUri: https://mocksvc.mulesoft.com/mocks/ecd1489c-2927-42ee-b94f-d454bd3daad9 # 
-title: AccountInformation
-description: Rest API for getting account information
+baseUri: /api/v1
+title: Getting Account Details
+description: API for getting account information
 version: v1
-protocols: [HTTP]
+protocols: [HTTPS]
 mediaType: application/json
 
-uses : 
-  libarary: Accountlibrary.raml
+#Library it uses to import in this file
+uses: 
+  libarary: accountlibrary.raml
+
+#Basic security schemes
 securitySchemes: 
   basic:
    description: This API support basic authentication
    type: Basic Authentication
+
+#Resources and error scenerios
 /accounts: 
  get:
   description: The query parameter is specified
+  headers: 
+    Accept:
+     type: string
+     default: 
+      application/json
   queryParameters: 
     transferIn: boolean
     transferOut: boolean
     page: integer
+  securedBy: basic
   responses: 
     200:
      body:
       application/json:
        type: libarary.Accounts
+       description: This is response for correct data.
        example: !include accountexample.raml
-    404:
-     body: 
-       application/json:
-         example:
-          {
-             code : 404,
-             message : "Account not found"
-
-          } 
-    
     400:
      body:
       application/json:
-        example: 
+       type: libarary.Error
+       example: 
          {
-            code : 400,
-            message : "Bad Request!! please enter valid query                               parameter"
+            "code"    : "400",
+            "message" : "Bad Request!! please enter valid query                               parameter"
          }
+    401:
+     body:
+      application/json:
+       type: libarary.Error
+       example:
+        {
+            "code"    : "401",
+            "message" : "Unauthorized error!! Please enter valid                              user name & password"
+        }
+    404:
+     body: 
+       application/json:
+        type: libarary.Error
+        example:
+           {
+             "code"    : "404",
+             "message" : "Account not found"
+           } 
+    405:
+     body:
+      application/json:
+       type: libarary.Error
+       example:
+         {
+           "code"  : "405",
+           "message" : "Method not allowed,please check and verify                           you request"
+         }
+    500:
+     body:
+      application/json:
+       type: libarary.Error
+       example:
+         {
+           "code" : "500",
+           "message" : "Internal Server Error"
+         }
+       
