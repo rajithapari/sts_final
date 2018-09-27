@@ -1,0 +1,64 @@
+#%RAML 1.0
+baseUri: https://mocksvc.mulesoft.com/mocks/fc3b732e-3262-467d-945d-a51cc4c1741d # 
+title: Status of Transfer between Accounts
+version: v1
+protocols: [HTTPS]
+securitySchemes: 
+  oauth2_0: !include securityScheme.raml
+uses: 
+  library: entity.raml
+securedBy: oauth2_0 
+/api/v1/dda/transfer/status:
+ get:
+  queryParameters: 
+    transferId: string
+  
+  responses: 
+     200:
+       body: 
+         application/json:
+          example: !include design.raml 
+       
+     400:
+        body: 
+          application/json:
+            example:
+             {
+              code: 400, 
+              message: "insufficient funds"
+             }
+     401:
+      body: 
+        application/json:
+          example:
+           {
+             code: 401,
+             message: "Account not authorized"
+           }                                    
+     404:
+      body: 
+        application/json:
+          example:
+           {
+             code: 404,
+             message: "Transfer Id  not Found"
+           }
+     405:
+      body: 
+        application/json:
+          example:
+           {
+             code: 405,
+             message: "Method not allowed"
+           }
+      
+     500:
+      body: 
+        application/json:
+          example:
+            {
+              code: 500,
+              message: "Transfer not available due to end of day processing"
+            }
+          
+      
