@@ -1,0 +1,66 @@
+#%RAML 1.0 Library
+usage: This library defines all the resource entity used
+
+types: 
+  Error: 
+    description: This is Error Entity which have error message along with the codes
+    type: object
+    properties: 
+      code:
+        type: string
+        pattern: \d+
+        description: Long term persistent identifier which can be used to trace error condition back to log information
+      message:
+        type: string
+        description: End user displayable information which might help the customer diagnose an error
+
+  Identifier:
+    description: This is a simple type which is numeric string with max length 128
+    type: string
+    pattern: \d+
+    maxLength: 128    
+
+  AccountDescriptor:
+    type: object
+    properties: 
+      accountId:
+        type: Identifier
+        description: Long-term persistent identity of the account. Not an account number.This identity must be unique to the owning institution.
+      accountType: 
+        type: string
+        enum: [ESOP,GUARDIAN,HOMEEQUITYLOAN,HOMELINEOFCREDIT,INSITUTIONALTRUST, INSTALLMENT,IRA,KEOGH,LINEOFCREDIT,LOAN,MILATARYLOAN,MONEYMARKET,MORTGAGE,PERSONALLOAN,ROLLOVER,ROTH,SARSEP,SAVINGS,SMBLOAN,STUDENTLOAN,TAXABLE,TDA,TRUST,UGMA,UTMA,401A,401K,403B,"529",AUTOLOAN,CD,CHARGE,CHECKING,COMMERCIALLINEOFCREDIT,COMMERCIALLOAN,COVERDELL,CREDITCARD,ESCROW]
+        description: This field defines the type of Account from the list defined
+        required: false
+      status:
+        type: string
+        enum: [CLOSED,DELINQUENT,NEGATIVECURRENTBALANCE,OPEN,PAID,PENDINGCLOSE,PENDINGOPEN]
+        description: This field defines the status of the account
+
+  Account:
+    type: AccountDescriptor
+    properties: 
+      nickname:
+        type: string
+        description: The user’s moniker for the account
+        required: false
+      accountNumber:
+        type: string
+        description: End user’s handle for account at owning institution
+      interestRate:
+        type: number
+        description: Interest Rate of Account
+
+
+  DepositAccount: 
+    description: This is Deposit Account Entity which inherits Account Entity
+    type: Account
+    properties: 
+      balanceAsOf:
+        type: date-only
+        description: As-of date of balances
+      currentBalance:
+        type: number
+        description: Balance of funds in account
+      maturityDate:
+        type: date-only
+        description: Maturity date for CDs
