@@ -1,0 +1,102 @@
+#%RAML 1.0 Library
+types: 
+ identifier:
+   type: string
+   pattern: \d+
+   maxLength: 128
+ string64:
+  type: string
+  maxLength: 64
+ string2:
+  type: string
+  maxLength: 2
+ string9:
+  type: string
+  maxLength: 9
+ iso3166CountryCode:
+  type: string
+  enum: [AD,AE,AF,AG,AI,AL,AM,AN,AO,AQ,AR,AS,AT,AU,AW,AX,AZ,BA,BB,BD,BE,BF,BG,BH,BI,BJ,BM,BN,BO,BR,BS,BT,BV,BW,BY,BZ,CA,CC,CD,CF,CG,CH,CI,CK,CL,CM,CN,CO,CR,CS,CU,CV,CX,CY,CZ,DE,DJ,DK,DM,DO,DZ,EC,EE,EG,EH,ER,ES,ET,FI,FJ,FK,FM,FO,FR,GA,GB,GD,GE,GF,GG,GH,GI,GL,GM,GN,GP,GQ,GR,GS,GT,GU,GW,GY,HK,HM,HN,HR,HT,HU,ID,IE,IL,IM,IN,IO,IQ,IR,IS,IT,JE,JM,JO,JP,KE,KG,KH,KI,KM,KN,KP,KR,KW,KY,KZ,LA,LB,LC,LI,LK,LR,LS,LT,LU,LV,LY,MA,MC,MD,MG,MH,MK,ML,MM,MN,MO,MP,MQ,MR,MS,MT,MU,MV,MW,MX,MY,MZ,NA,NC,NE,NF,NG,NI,NL,NO,NP,NR,NU,NZ,OM,PA,PE,PF,PG,PH,PK,PL,PM,PN,PR,PS,PT,PW,PY,QA,RE,RO,RU,RW,SA,SB,SC,SD,SE,SG,SH,SI,SJ,SK,SL,SM,SN,SO,SR,ST,SV,SY,SZ,TC,TD,TF,TG,TH,TJ,TK,TL,TM,TN,TO,TR,TT,TV,TW,TZ,UA,UG,UM,US,UY,UZ,VA,VC,VE,VG,VI,VN,VU,WF,WS,YE,YT,ZA,ZM,ZW ]
+
+# It contains information about the customer such as Id, DOB.
+ customer:
+  type: object
+  properties: 
+    customerId:
+     type: identifier
+     description: Long-term persistent identity of the customer. this identity must be unique to the owning institution
+     required: true
+    name: customerName 
+    dateOfBirth: 
+     type: date-only
+     description: The customer’s date of birth
+    address: deliveryAddress[]
+
+# It contains information about the  deliveryAddress
+
+ deliveryAddress:
+  type: object
+  properties: 
+    type:
+     description: HOME, BUSINESS, MAILING
+     type: string
+     enum: [HOME, BUSINESS, MAILING]
+    line1:
+     type: string64
+     description: The delivery location’s first line
+     required: true
+    line2:
+     description: The delivery location’s second lines
+     type: string64
+    city:
+     description: The delivery location’s city
+     type: string64
+     required: true
+    state:
+     description: The delivery location’s state
+     type: string2
+     required: true
+    zip:
+     description: The delivery location’s zip code
+     type: string9
+     required: true
+    country:
+     description: ISO 3166 two digit country code
+     type: iso3166CountryCode
+
+# It contains information about the  customerName 
+ customerName:
+  type: object
+  properties: 
+   first:
+    description: First name
+    type: string
+    required: true
+   middle:
+    description: Middle name
+    type: string
+   last:
+    description: Last name
+    type: string
+    required: true
+   company:
+    description: Company name
+    type: string
+
+# It contains information about the error scenario
+ error:
+  type: object
+  properties: 
+    code:
+     description: error http code
+     type: string 
+     maxLength: 3
+     required: true
+    mesaage:
+     description: error http message
+     type: string
+
+
+    
+   
+   
+
