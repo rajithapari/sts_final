@@ -1,0 +1,91 @@
+#%RAML 1.0 Library
+#title: entity
+#description: entities description 
+
+types: 
+ identifier:
+  type: string
+  pattern: \d+
+  maxLength: 128
+#
+ accountType:
+   type: string
+   enum: [INVESTMENT_ACCOUNT, LOAN_ACCOUNT,DEPOSIT_ACCOUNT,COMMERCIALLOAN]
+
+# Account description tables detail
+ AccountDescriptor:
+  type: object
+  description: account descriptor entity 
+  properties: 
+    accountID: identifier
+    status: accountType
+    displayname: string
+    description: string
+    accountStatus:
+     enum: [OPEN, CLOSED, PENDINGOPEN, PENDINGCLOSE, DELINQUENT,
+              PAID, NEGATIVECURRENTBALANCE,APPROVED,REJECTED]
+
+# Account tables details 
+ Account:
+  type: AccountDescriptor
+  description: account entity details 
+  properties: 
+    parentAccountId: identifier
+    nickname: string
+    accountNumber: string
+    interestRate: number
+    curreny: currency[]
+
+# Currey tables details 
+ currency:
+  type: object
+  description: currency details entity
+  properties: 
+    currencyCode: 
+      enum: [AED,AUD,USD,BMD,BND,CAD,CHF]
+    currencyRate: string
+    originalCurrencyCode: 
+     enum: [AED,AUD,USD,BMD,BND,CAD,CHF]
+
+# investment account tables details
+ InvestmentAccount:
+  type: Account
+  description: investment account details
+  properties: 
+    balanceasOf: datetime
+    allowedCheckWriting: boolean
+    allowedOptionTrade: boolean
+    currentValue: boolean
+    availableCashBalance: number
+    margin: boolean
+    marginBalance: boolean
+    shortBalance: number
+    brokerId: string
+    planId: string
+    rolloverAmount: number
+    employerName: string
+    balanceList: InvestmentBalance[]
+
+# investmen balance table details 
+ InvestmentBalance:
+  type: object
+  description: investmen account blance 
+  properties: 
+   balanceName: string
+   balanceDescription: string
+   balanceType:
+    enum: [AMOUNT, PERCENTAGE]
+   balanceValue: number
+   balanceDate: datetime
+   currency: currency[]
+
+#
+ Errors:
+  type: object
+  description: http errors codes 
+  properties: 
+    code: 
+    type: string
+    message: 
+     type: string
+
