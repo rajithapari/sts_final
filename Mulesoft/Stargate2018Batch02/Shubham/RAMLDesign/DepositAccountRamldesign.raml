@@ -1,0 +1,92 @@
+#%RAML 1.0
+baseUri: /api/v1/dda
+title: StargateSpringBootRamlDesign
+version: v1 
+protocols: [HTTPS]
+mediaType: application/json
+
+uses: 
+  resourceLibrary: ResourcesLibrary.raml
+
+securitySchemes: 
+  Basic: 
+    description: This API supports Basic Authentication.
+    type: Basic Authentication
+
+/accounts:
+  get:
+    description: Get All Deposit Accounts which are approching maturity date
+    headers: 
+      Accept:
+        type: string
+        default: application/json
+        description: xml or json
+    queryParameters: 
+      accountType:
+        type: string
+        description: This request parameter defines the type of account
+      currentDate:
+        type: date-only
+        description: This is the current date to be passed in the query parameter
+    securedBy: Basic
+    responses: 
+      200:
+        body: 
+          application/json:
+            type: resourceLibrary.DepositAccount[]
+            example:  !include DepositAccountExample.raml
+      204:
+        body: 
+          application/json:
+            type: resourceLibrary.Error
+            example:
+              {
+                "code": "204",
+                "message": "There is no deposit account which is getting
+                          matured in the next 15 days"
+              }
+      400:
+        body: 
+          application/json:
+            type: resourceLibrary.Error
+            example:
+              {
+                "code": "400",
+                "message": "Invalid request please check your URL and parameters"
+              }
+      401:
+        body: 
+          application/json:
+            type: resourceLibrary.Error
+            example:
+              {
+                "code": "401",
+                "message": "Unauthorized Request"
+              }
+      404:
+        body: 
+          application/json:
+            type: resourceLibrary.Error
+            example:
+              {
+                "code": "404",
+                "message": "Resource not found"
+              }
+      405:
+        body: 
+          application/json:
+            type: resourceLibrary.Error
+            example:
+              {
+                "code": "405",
+                "message": "Method not allowed please check and verify your request"
+              }
+      500:
+        body: 
+          application/json:
+            type: resourceLibrary.Error
+            example:
+              {
+                "code": "500",
+                "message": "Internal Server Error"
+              }
