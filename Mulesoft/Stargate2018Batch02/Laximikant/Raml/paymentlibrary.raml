@@ -4,90 +4,129 @@ usage: payment details library
 types:
  Identifier: 
     type: string
+    description: string identifier 
     pattern: \d+ 
     maxLength: 128
 
- AccountDescriptor:
+ accountDescriptor:
     type: object
     properties: 
       accountId: Identifier
       accountType:
-        enum: [DEPOSIT_ACCOUNT, LOAN_ACCOUNT, LOC_ACCOUNT, INVENSTMENT_ACCOUNT]
+        enum: [ESOP,GUARDIAN,HOMEEQUITYLOAN,HOMELINEOFCREDIT, INSITUTIONALTRUST,INSTALLMENT,IRA,KEOGH,LINEOFCREDIT, LOAN,MILATARYLOAN,MONEYMARKET,MORTGAGE,PERSONALLOAN, ROLLOVER,ROTH,SARSEP,SAVINGS,SMBLOAN,STUDENTLOAN, TAXABLE,TDA,TRUST,UGMA,UTMA,401A,401K,403B,AUTOLOAN,CD, CHARGE,CHECKING,COMMERCIALLINEOFCREDIT,COMMERCIALLOAN, COVERDELL,CREDITCARD,ESCROW]
+        description: Account Type can be any value from enum 
         required: false
+        
       displayName: 
         type: string 
+        description: Name to be displayed on account
         required: false       
       description: 
         type: string
+        description: account description
         required: false
       accountStatus:
         enum: [OPEN, CLOSED, PENDINGOPEN, PENDINGCLOSE, DELINQUENT,
               PAID, NEGATIVECURRENTBALANCE,APPROVED,REJECTED]
         required: false
 
- Account:
-    type: AccountDescriptor
+ account:
+    type: accountDescriptor
     properties: 
       parentAccountId: 
        type: Identifier
+       description: an unique parent account id
        required: false
       nickname: 
         type: string
+        description: nick name of account
         required: false
       accountNumber: string
       interestRate: 
        type: number
+       description: interest rate applicable to this account
        required: false
 
- Transaction:
+ transaction:
     type: object
     properties: 
       accountId: Identifier
       transactionId: Identifier
       transactionTimestamp: 
        type: date-only
+       description: time of transaction 
        required: false
       description: 
        type: string
+       description: details of transaction
        required: false
       amount: 
        type: number
        required: false
  
- LoanTransaction:
-    type: Transaction
+ loanTransaction:
+    type: transaction
     properties: 
       trasactionType: 
         enum: [PAYMENT, FEE, ADJUSTMENT, INTEREST]
-      
- PaymentDetails:
+        description: type of trasaction money
+        
+ paymentDetails:
     type: object
     properties: 
-      PrincipalAmount : number
-      InterestAmount : number
-      InsuranceAmount : number
-      EscrowAmount : number
-      PmiAmount : number
-      FessAmount : number
-
- LoanAccount:
-    type: Account
-    properties: 
-      BalanceAsOf: 
-       type: datetime
-       required: false
-      PrincipalBalance: 
+      principalAmount : 
+       type: number 
+       description: The amount borrowed (such as the face value of a debt security), or                       the part of the amount borrowed which remains unpaid
+       
+      interestAmount : 
        type: number
+       description: he proportion of an amount loaned which a lender charges as interest                      to the borrower
+      insuranceAmount : 
+       type: number
+       description: The maximum amount an insurance company will pay if an insured asset                      is deemed a total loss.
+      escrowAmount :
+       type: number
+       description: Escrow generally refers to money held by a third-party on behalf of                       transacting parties
+      pmiAmount : 
+       type: number
+       description: PMI is an insurance policy that protects the holder against loss                          resulting from default on a mortgage loan.
+      fessAmount : 
+       type: number
+       description: A fee is the amount of money that a person or organization is paid                        for a particular job or service that they provide.
+
+ loanAccount:
+    type: account
+    properties: 
+      balanceAsOf: 
+       type: datetime
+       description: balance on todays date
        required: false
-      OrigionalPrinciple: number
-      LoanTeram: integer
-      TotalNumberOfPayments: integer
-      PaymentFrequency: 
+      principalBalance: 
+       type: number
+       description: Amount of loan remaining unpaid, not including interest and other                         charges
+       required: false
+      origionalPrinciple: 
+       type: number
+       description: the total amount of money borrowed
+      loanTerm: 
+       type: integer
+       description: Period over which a loan agreement is in force, and before or at the                      end of which the loan should either be repaid or renegotiated for                         another term
+      totalNumberOfPayments: 
+       type: integer
+       description: total no of payments required to complete the loan amount
+      paymentFrequency: 
        enum: [DAILY, WEEKLY, BIWEEKLY, SEMIMONTHLY, MONTHLY,
               SEMIANNUALLY, ANNUALLY]
+       description: payment time per EMI       
 
- Error:
+ error:
   type: object
   properties: 
-   Code: integer
-   message: string 
+   code: 
+    type: string
+    description: HTTP error code
+   message: 
+    type: string 
+    description: error message description to show user
+
+
