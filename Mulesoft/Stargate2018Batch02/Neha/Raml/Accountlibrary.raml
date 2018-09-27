@@ -1,6 +1,7 @@
 #%RAML 1.0 Library
 usage: "Account & AccountDescriptor Library"
 
+#Account Descriptor type Entity
 types: 
   Identifier: 
    type: string
@@ -8,57 +9,94 @@ types:
    maxLength: 128
   AccountDescriptor:
    type: object
+   description: Account Description Entity
    properties: 
-     accountId: Identifier
+     accountId: 
+      type: Identifier
+      description: Account id for accessing accounts,this identity                      must be unique.
+     
      accountType:
-      enum: [ESOP,GUARDIAN,HOMEEQUITYLOAN,HOMELINEOFCREDIT,INSITUTIONALTRUST,INSTALLMENT,IRA,KEOGH,LINEOFCREDIT,MILATARYLOAN,MONEYMARKET,MORTGAGE,PERSONALLOAN,ROLLOVER,ROTH,SARSEP,SAVINGS,SMBLOAN,STUDENTLOAN,TAXABLE,TDA,TRUST,UGMA,UTMA,401A,401K,403B,AUTOLOAN,CD,CHARGE,CHECKING,COMMERCIALLINEOFCREDIT,COMMERCIALLOAN,COVERDELL,CREDITCARD,ESCROW]
+      enum: [ESOP,GUARDIAN,HOMEEQUITYLOAN,HOMELINEOFCREDIT,                       INSITUTIONALTRUST,INSTALLMENT,IRA,KEOGH,LINEOFCREDIT,                LOAN,MILATARYLOAN,MONEYMARKET,MORTGAGE,PERSONALLOAN,                 ROLLOVER,ROTH,SARSEP,SAVINGS,SMBLOAN,STUDENTLOAN,                    TAXABLE,TDA,TRUST,UGMA,UTMA,401A,401K,403B,AUTOLOAN,CD,              CHARGE,CHECKING,COMMERCIALLINEOFCREDIT,COMMERCIALLOAN,               COVERDELL,CREDITCARD,ESCROW]
       required: false
+      description: Account type which are enum.
      displayName: 
       type: string
+      description: Account identity to display to customer.
      description: 
       type: string
       required: false
+      description: Description of account.
      status:
-      enum: [CLOSED,DELINQUENT,NEGATIVECURRENTBALANCE,OPEN,PAID,PENDINGCLOSE,PENDINGOPEN]
+      enum: [CLOSED,DELINQUENT,NEGATIVECURRENTBALANCE,OPEN,PAID,                  PENDINGCLOSE,PENDINGOPEN]
       required: false
-      
+      description: Status for accounts.
+
+#Account type entity     
   Account:
    type: AccountDescriptor
+   description: An account entity that extends and inherits all                      fields from AccountDescriptor.
    properties: 
      parentAccountId:
        type: Identifier
        required: false
+       description: Parent Account Id is the identity of the parent                      account. This is used to group accounts.
      nickName: 
       type: string
       required: false
+      description: This to display name for the account.
      currency: 
       type: string
       required: false
+      description: Currency for particular account.
      lineOfBusiness: 
       type: string
       required: false
+      description: The line of business, such as consumer, consumer                     joint, small business, corporate, etc.
      accountNumber:
       type: string
+      description: End user’s handle for account at owning                              institution.
      interestRate: 
       type: number
+      description: Interest Rate of Account
      transferIn: 
       type: boolean
       required: false
+      description: Account is eligible for incoming transfers
      transferOut:
       type: boolean
       required: false
+      description: Account is eligible for outgoing transfers
      interestRateType:
       enum: [FIXED,VARIABLE]
       required: false
+      description: Interest rate type is enum which has FIXED or                        VARIABLE
 
+#Accounts type entity 
   Accounts:
    type: object
+   description: Array of account
    properties: 
      total:
       type: number
+      description: Total number of results in this collection across                    all pages
      totalPages:
       type: number
+      description: Total number of pages
      page:
       type: number
+      description: Current page number
      account: 
       type: Account[]
+      description: An array of accounts.
+
+#Error type entity
+  Error:
+   type: object
+   description: Error Scenerios.
+   properties: 
+     code:
+      type: string
+      description: Code for error scenerios.
+     message:
+      type: string
+      description: Message for error scenerios.
