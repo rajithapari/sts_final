@@ -1,8 +1,9 @@
 #%RAML 1.0
-baseUri: https://mocksvc.mulesoft.com/mocks/f3ff7461-0ebf-4128-a066-d544b04b8e00 # 
+baseUri: https://mocksvc.mulesoft.com/mocks/89203cf6-ebd2-4e60-bbfb-ee4b637506fc/api/v1/dda/ # baseUri: /api/v1/dda/
 title: paymentdetails
+description: Getting payment details for perticular loan account
 version: v1
-protocols: [HTTP]
+protocols: [HTTPS]
 mediaType: application/json
 
 uses: 
@@ -13,44 +14,28 @@ securitySchemes:
 
 securedBy: oauth2_0   
 
-/api/v1/loan/paymentdetails:
- post:
+/loans/payments/{accountId}:
+ get:
   description: Payment details for loan account
-  body: 
-    application/json:
-     example:
-      { 
-       accountId: "13579024"
-      }
-
+  headers:
+   Accept: 
+    type: string
+    default: 
+     application/json
+     
   responses: 
    200:
     body:
      application/json:
-        example: 
-          {
-            "PaymentDetails" : {
-                           "AccountId" : "1357902469",
-                           "OriginalPrincipal" : "300000",
-                           "LoanTerm" : "5",
-                           "TotalNumberOfPayments": "12",
-                           "PaymentFrequency" : "MONTHLY"
-                         },
-            PaymentDetail: !include paymentdetailsexample.raml
-          }
-
-   404:
-    body: 
-     application/json:
-       example:
-        {
-          code: "404",
-          message: "Account not found"
-        }
-
+       example: 
+             !include paymentdetailsexample.raml
+          
+         
+          
    400:
     body: 
      application/json:
+       type: library.error
        example:
         {
           code: "400",
@@ -60,15 +45,37 @@ securedBy: oauth2_0
    401:
     body: 
      application/json:
-       example:
-        {
+        type: library.error
+        example:
+         {
           code: "401",
           message: "You are not authorized"
-        }  
+         }  
+   
+   404:
+    body: 
+     application/json:
+       type: library.error
+       example:
+        {
+          code: "404",
+          message: "Account not found"
+        }
+   
+   405:
+    body: 
+     application/json:
+       type: library.error
+       example:
+        {
+          code: "405",
+          message: "Method not allowed"
+        }
 
    500:
     body: 
      application/json:
+       type: library.error
        example:
         {
           code: "500",
