@@ -1,0 +1,50 @@
+#%RAML 1.0 Library
+types:
+ Identifier: 
+    type: string
+    pattern: \d+ 
+    maxLength: 128
+ accountDescriptor:
+    type: object
+    properties: 
+      accountId: Identifier
+      accountType:
+        enum: [401A,401K,403B,AUTOLOAN,CD,CHARGE,CHECKING,COMMERCIALLINEOFCREDIT,                COMMERCIALLOAN,COVERDELL,CREDITCARD,ESCROW,ESOP,GUARDIAN,                         HOMEEQUITYLOAN,HOMELINEOFCREDIT,INSITUTIONALTRUST,INSTALLMENT,IRA,                KEOG,LINEOFCREDIT,LOAN,MILATARYLOAN,MONEYMARKET,MORTGAGE,                         PERSONALLOAN,ROLLOVER,ROTH,SARSEP,SAVINGS,SMBLOAN,STUDENTLOAN,                    TAXABLE,TDA,TRUST]
+      displayName: string
+      description: string
+      accountStatus:
+        enum: [OPEN, CLOSED, PENDINGOPEN, PENDINGCLOSE, DELINQUENT,
+              PAID, NEGATIVECURRENTBALANCE,APPROVED,REJECTED]     
+ account:
+    type: accountDescriptor
+    properties: 
+      parentAccountId: Identifier
+      nickname: string
+      accountNumber: string
+      interestRate: number
+ transfer:
+    type: accountDescriptor
+    properties: 
+      TransferId: Identifier
+      FromAccountId: Identifier
+      ToAccountId: Identifier
+      AmountNumber: number
+ transferStatus:
+    type: transfer
+    properties: 
+      
+      ReferenceId: Identifier
+      status:
+       enum: [FAILURE,NOFUNDS,PENDING,SUCCESS]     
+      TransferDate : number      
+ transaction:
+    type: account
+    properties: 
+      accountId: Identifier
+      transactionId: Identifier
+      transactionTimestamp: date-only
+      description: string
+      imageIds: string[]
+      status: 
+        enum: [PENDING, MEMO, POSTED, AUTHORIZATION]
+      amount: number
