@@ -1,23 +1,30 @@
 #%RAML 1.0 NamedExample
-value:
-  [{
-      "PrincipalAmount" : "200000",
-      "InterestAmount" : "1000",
-      "InsuranceAmount" : "10000",
-      "EscrowAmount" : "5000",
-      "PmiAmount" : "200",
-      "FeesAmount" : "220",
-      "BalanceAsOf" : "2018-08-15",
-      "PrincipalBalance" : "200000"
-    },
     {
-      "PrincipalAmount" : "200000",
-      "InterestAmount" : "1000",
-      "InsuranceAmount" : "10000",
-      "EscrowAmount" : "5000",
-      "PmiAmount" : "200",
-      "FeesAmount" : "220",
-      "BalanceAsOf" : "2018-08-15",
-      "PrincipalBalance" : "200000"
-    }
+          "accountId" : "1357902469",
+          "originalPrincipal" : "300000",
+          "loanTerm" : "5",
+          "totalNumberOfPayments": "12",
+          "paymentFrequency" : "MONTHLY",
+          "paymentDetails": [
+                              {
+                                "principalAmount" : "200000",
+                                "interestAmount" : "1000",
+                                "insuranceAmount" : "10000",
+                                "escrowAmount" : "5000",
+                                "pmiAmount" : "200",
+                                "feesAmount" : "220",
+                                "balanceAsOf" : "2018-08-15",
+                                "principalBalance" : "200000"
+                              },
+                              {
+                                "principalAmount" : "200000",
+                                "interestAmount" : "1000",
+                                "insuranceAmount" : "10000",
+                                "escrowAmount" : "5000",
+                                "pmiAmount" : "200",
+                                "feesAmount" : "220",
+                                "balanceAsOf" : "2018-08-15",
+                                "principalBalance" : "200000"
+                              }
   ]
+ }
