@@ -1,0 +1,54 @@
+{
+      "accountId": "50392848",
+      "accountType": "SAVINGS",
+      "displayName": "Investment Account Details",
+      "description": "InvestmentAccount",
+      "status": "OPEN",
+      "nickname": "ABC",
+      "currency":{  
+          "currencyRate": null,
+          "currencyCode": "EUR",
+          "originalCurrencyCode": null
+      },
+      "accountNumber": "51365570",
+      "interestRate": 345.89,
+      "allowedCheckWriting": true,
+      "allowedOptionTrade": false,
+      "currentValue": 789045,
+      "availableCashBalance": 56789.9,
+      "margin": true,
+      "marginBalance": true,
+      "shortBalance": 567.9,
+      "brokerId": "BRID4567",
+      "planId": "sdf34",
+      "rolloverAmount": 456.9,
+      "employerName": "Capgemini",
+      
+      "balanceList":[  
+          {  
+            "balanceName": "Investment account Balance",
+            "balanceDescription": "Investment Account balance",
+            "balanceType": "AMOUNT",
+            "balanceValue": 2389.9,
+            "balanceDate": "2018-09-26",
+            "currency":{  
+                "currencyRate": 12,
+                "currencyCode": "EUR",
+                "originalCurrencyCode": "EUR"
+            }
+          },
+          
+          {  
+            "balanceName": "Investment account Balance",
+            "balanceDescription": "Investment Account balance",
+            "balanceType": "PERCENTAGE",
+            "balanceValue": 239.9,
+            "balanceDate": "2018-09-26",
+            "currency":{  
+                "currencyRate": 12,
+                "currencyCode": "EUR",
+                "originalCurrencyCode": "EUR"
+            }
+          }
+      ]           
+   }
