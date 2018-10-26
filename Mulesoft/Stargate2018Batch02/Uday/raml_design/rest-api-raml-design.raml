@@ -1,0 +1,59 @@
+#%RAML 1.0 
+
+baseUri: /api/v1/accounts/investmentAccount
+ 
+title: Investment Account Blance
+version: v1
+protocols: [HTTPS]
+mediaType: application/json
+uses: 
+  library: entity.raml
+
+/accounts/investmentAccount:
+  post:
+   description: Return investment account balance information on basis of accountID
+   headers: 
+     Accept:
+       type: string
+       default: 
+        application/json
+        
+   body: 
+      application/json:
+        example:
+         {
+            "accountId":"10011"
+        }
+
+   responses: 
+    200:
+     body:
+      application/json:
+       type: library.InvestmentAccount
+       example: !include response.json
+       
+    400:
+        body: 
+          application/json:
+          
+           example: { "code": "400", "message":"Bad request" }
+
+    401:
+        body: 
+          application/json:
+           #type: library.Errors
+            example:
+              { "code": "401", "message": "Customer not authorized" }
+
+    404:
+        body: 
+          application/json:
+           #type: library.Errors
+            example:
+              { "code": "404", "message": "Source account not found" }
+
+    500:
+        body: 
+          application/json:
+           example:
+            { "code": "500", "message": "Internal server errors" }
